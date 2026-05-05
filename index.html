@@ -3,74 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Vendas Vodafone Fibra</title>
+    <title>Organizador de Vendas Vodafone</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(230,0,0,0.3); }
-        header h1 { font-size: 1.8rem; }
-        #addBtn { background: #fff; color: #e60000; border: none; padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        #addBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.5rem; }
+        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .search-section { margin-bottom: 20px; }
-        #searchInput { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: border-color 0.3s; }
-        #searchInput:focus { border-color: #e60000; }
-        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        #searchInput { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .table-container { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; }
-
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px; }
-        tr:hover { background: #f8f9fa; }
-        tfoot td { background: #f8f9fa; font-weight: bold; }
-        .photo-thumbs { display: flex; gap: 5px; flex-wrap: wrap; }
-        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; }
-        .action-btn { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 4px; transition: background 0.2s; font-size: 1.2rem; }
-        .edit-btn { color: #007bff; }
-        .edit-btn:hover { background: #007bff20; }
-        .delete-btn { color: #dc3545; }
-        .delete-btn:hover { background: #dc354520; }
-        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
-        .estado-pendente { background: #fff3cd; color: #856404; border-color: #ffc107; }
-        .estado-vendido { background: #d4edda; color: #155724; border-color: #28a745; }
-        .estado-recusado { background: #f8d7da; color: #721c24; border-color: #dc3545; }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideIn 0.3s; }
-        .close { position: absolute; right: 20px; top: 15px; font-size: 2rem; cursor: pointer; color: #999; }
-        .close:hover { color: #333; }
-        #modalTitle { margin-bottom: 20px; color: #e60000; }
-        label { display: block; margin: 15px 0 5px; font-weight: 600; color: #555; }
-        input[type="text"], input[type="number"], input[type="file"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
-        input:focus, textarea:focus { outline: none; border-color: #e60000; }
-        textarea { height: 80px; resize: vertical; }
-        .photo-preview { max-width: 200px; max-height: 150px; margin-top: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .form-actions { display: flex; gap: 10px; margin-top: 25px; }
-        button[type="submit"], #cancelBtn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; }
-        button[type="submit"] { background: #28a745; color: white; }
-        button[type="submit"]:hover { background: #218838; transform: translateY(-1px); }
-        #cancelBtn { background: #6c757d; color: white; }
-        #cancelBtn:hover { background: #545b62; }
-        .empty-state { text-align: center; padding: 40px; color: #888; font-style: italic; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Mobile: transformar a tabela em cartões */
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; }
+        .estado-pendente { background: #fff3cd; color: #856404; }
+        .estado-vendido { background: #d4edda; color: #155724; }
+        .estado-recusado { background: #f8d7da; color: #721c24; }
+        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
+        .close { float: right; font-size: 2rem; cursor: pointer; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; }
+        .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .form-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-cancel { background: #6c757d; color: white; }
+        .diagnostico { margin: 20px 0; padding: 10px; background: #eee; border-radius: 8px; }
         @media (max-width: 768px) {
-            .container { padding: 10px; }
-            header { flex-direction: column; gap: 15px; text-align: center; }
-            header h1 { font-size: 1.4rem; }
-
-            /* Esconde cabeçalho da tabela */
-            thead { display: none; }
-            /* Faz cada linha virar um card */
-            tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; padding: 10px; background: white; }
-            td { display: block; text-align: right; padding: 8px 10px; border: none; position: relative; }
-            td::before { content: attr(data-label); float: left; font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.8rem; }
-            .photo-thumbs { justify-content: flex-end; }
-            tfoot tr { display: flex; justify-content: space-between; }
-            tfoot td { display: block; padding: 10px; }
-            tfoot td::before { content: none; }
+            th, td { padding: 8px; font-size: 0.9rem; }
+            .modal-content { width: 95%; }
         }
     </style>
 </head>
@@ -78,12 +43,17 @@
     <div class="container">
         <header>
             <h1>📊 Vendas Vodafone</h1>
-            <button id="addBtn">+ Nova Proposta</button>
+            <div>
+                <button class="btn" id="addBtn">+ Nova Proposta</button>
+                <button class="btn" id="testStorageBtn" style="background:#ffc107; color:#333; margin-left:10px;">🧪 Testar Armazenamento</button>
+            </div>
         </header>
 
         <div class="search-section">
-            <input type="text" id="searchInput" placeholder="🔍 Buscar por nome do cliente...">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar cliente...">
         </div>
+
+        <div id="diagnostico" class="diagnostico" style="display:none;"></div>
 
         <div class="table-container">
             <table id="salesTable">
@@ -91,12 +61,12 @@
                     <tr>
                         <th>Cliente</th>
                         <th>Pacote</th>
-                        <th>Preço (€)</th>
-                        <th>Comissão (€)</th>
+                        <th>Preço</th>
+                        <th>Comissão</th>
                         <th>IBAN</th>
                         <th>Fotos</th>
                         <th>Estado</th>
-                        <th>Ações</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="salesBody"></tbody>
@@ -111,49 +81,43 @@
                 </tfoot>
             </table>
         </div>
+    </div>
 
-        <!-- Modal igual ao anterior -->
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2 id="modalTitle">Nova Proposta</h2>
-                <form id="salesForm">
-                    <label for="clientName">Nome do Cliente:</label>
-                    <input type="text" id="clientName" required>
-
-                    <label for="packageDesc">Pacote/Descrição:</label>
-                    <textarea id="packageDesc" required></textarea>
-
-                    <label for="price">Preço (€):</label>
-                    <input type="number" id="price" step="0.01" required>
-
-                    <label for="iban">IBAN da Conta:</label>
-                    <input type="text" id="iban" required>
-
-                    <label>Foto Cartão Cidadão:</label>
-                    <input type="file" id="idPhoto" accept="image/*">
-                    <img id="idPhotoPreview" class="photo-preview" style="display:none;">
-
-                    <label>Fatura NOS:</label>
-                    <input type="file" id="nosBill" accept="image/*">
-                    <img id="nosBillPreview" class="photo-preview" style="display:none;">
-
-                    <div class="form-actions">
-                        <button type="submit">Guardar</button>
-                        <button type="button" id="cancelBtn">Cancelar</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Nova Proposta</h2>
+            <form id="salesForm">
+                <label>Nome do Cliente:</label>
+                <input type="text" id="clientName" required>
+                <label>Pacote/Descrição:</label>
+                <textarea id="packageDesc" required></textarea>
+                <label>Preço (€):</label>
+                <input type="number" id="price" step="0.01" required>
+                <label>IBAN:</label>
+                <input type="text" id="iban" required>
+                <label>Foto Cartão Cidadão:</label>
+                <input type="file" id="idPhoto" accept="image/*">
+                <img id="idPhotoPreview" style="max-width:150px; display:none;">
+                <label>Fatura NOS:</label>
+                <input type="file" id="nosBill" accept="image/*">
+                <img id="nosBillPreview" style="max-width:150px; display:none;">
+                <div class="form-actions">
+                    <button type="submit" class="btn-success">Guardar</button>
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
         (function() {
+            // ---------- Estado ----------
             let sales = [];
-            let currentEditIndex = -1;
             const STORAGE_KEY = 'vodafone_sales_data';
 
-            // DOM elements
+            // Elementos do DOM
             const addBtn = document.getElementById('addBtn');
             const searchInput = document.getElementById('searchInput');
             const salesBody = document.getElementById('salesBody');
@@ -165,6 +129,8 @@
             const closeBtn = document.querySelector('.close');
             const cancelBtn = document.getElementById('cancelBtn');
             const modalTitle = document.getElementById('modalTitle');
+            const testStorageBtn = document.getElementById('testStorageBtn');
+            const diagnosticoDiv = document.getElementById('diagnostico');
 
             const clientName = document.getElementById('clientName');
             const packageDesc = document.getElementById('packageDesc');
@@ -175,129 +141,141 @@
             const idPhotoPreview = document.getElementById('idPhotoPreview');
             const nosBillPreview = document.getElementById('nosBillPreview');
 
-            // --- Persistência ---
+            let currentEditIndex = -1;
+
+            // ---------- Persistência ----------
             function loadData() {
-                const data = localStorage.getItem(STORAGE_KEY);
-                if (data) {
-                    try { sales = JSON.parse(data); } catch (e) { sales = []; }
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        sales = JSON.parse(data);
+                        // garantir estado padrão
+                        sales.forEach(s => { if (!s.estado) s.estado = 'Pendente'; });
+                    }
+                } catch (e) {
+                    sales = [];
                 }
-                // garantir que vendas antigas sem estado fiquem como 'Pendente'
-                sales.forEach(s => { if (!s.estado) s.estado = 'Pendente'; });
             }
 
             function saveData() {
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
                 } catch (e) {
-                    alert('❌ Armazenamento cheio. Remova algumas vendas ou fotos.');
+                    alert('Erro ao guardar: armazenamento cheio.');
                 }
             }
 
-            function calcularComissao(preco) { return (parseFloat(preco) + 5) * 2; }
-
-            function escapeHtml(texto) {
-                return String(texto).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+            function calcularComissao(preco) {
+                return (parseFloat(preco) + 5) * 2;
             }
 
-            // --- Render da tabela ---
+            // ---------- Render (seguro, sem innerHTML para dados) ----------
             function renderTable() {
+                salesBody.innerHTML = '';
                 const termo = searchInput.value.toLowerCase().trim();
                 const filtradas = termo ? sales.filter(v => v.clientName.toLowerCase().includes(termo)) : sales;
-                salesBody.innerHTML = '';
 
                 if (filtradas.length === 0) {
-                    salesBody.innerHTML = '<tr><td colspan="8" class="empty-state">Nenhuma proposta encontrada.</td></tr>';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="8" style="text-align:center;">Nenhuma proposta encontrada.</td>';
+                    salesBody.appendChild(tr);
                 } else {
                     filtradas.forEach(venda => {
                         const idxGlobal = sales.indexOf(venda);
                         const comissao = calcularComissao(venda.price);
                         const tr = document.createElement('tr');
 
-                        // Definir classe do estado
-                        let estadoClass = '';
-                        if (venda.estado === 'Vendido') estadoClass = 'estado-vendido';
-                        else if (venda.estado === 'Recusado') estadoClass = 'estado-recusado';
-                        else estadoClass = 'estado-pendente';
-
-                        tr.innerHTML = `
-                            <td data-label="Cliente">${escapeHtml(venda.clientName)}</td>
-                            <td data-label="Pacote">${escapeHtml(venda.packageDesc)}</td>
-                            <td data-label="Preço">€${parseFloat(venda.price).toFixed(2)}</td>
-                            <td data-label="Comissão"><strong>€${comissao.toFixed(2)}</strong></td>
-                            <td data-label="IBAN">${escapeHtml(venda.iban.slice(0,4) + '...' + venda.iban.slice(-4))}</td>
-                            <td data-label="Fotos"><div class="photo-thumbs"></div></td>
-                            <td data-label="Estado">
-                                <select class="estado-select ${estadoClass}" data-index="${idxGlobal}">
-                                    <option value="Pendente" ${venda.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
-                                    <option value="Vendido" ${venda.estado === 'Vendido' ? 'selected' : ''}>✅ Vendido</option>
-                                    <option value="Recusado" ${venda.estado === 'Recusado' ? 'selected' : ''}>❌ Recusado</option>
-                                </select>
-                            </td>
-                            <td data-label="Ações">
-                                <button class="action-btn edit-btn" data-index="${idxGlobal}" title="Editar">✏️</button>
-                                <button class="action-btn delete-btn" data-index="${idxGlobal}" title="Eliminar">🗑️</button>
-                            </td>
-                        `;
-
-                        // Imagens com listeners
-                        const container = tr.querySelector('.photo-thumbs');
+                        // Cliente
+                        const tdCliente = document.createElement('td');
+                        tdCliente.textContent = venda.clientName;
+                        tr.appendChild(tdCliente);
+                        // Pacote
+                        const tdPacote = document.createElement('td');
+                        tdPacote.textContent = venda.packageDesc;
+                        tr.appendChild(tdPacote);
+                        // Preço
+                        const tdPreco = document.createElement('td');
+                        tdPreco.textContent = '€' + parseFloat(venda.price).toFixed(2);
+                        tr.appendChild(tdPreco);
+                        // Comissão
+                        const tdComissao = document.createElement('td');
+                        tdComissao.innerHTML = '<strong>€' + comissao.toFixed(2) + '</strong>';
+                        tr.appendChild(tdComissao);
+                        // IBAN
+                        const tdIban = document.createElement('td');
+                        tdIban.textContent = venda.iban.slice(0,4) + '...' + venda.iban.slice(-4);
+                        tr.appendChild(tdIban);
+                        // Fotos
+                        const tdFotos = document.createElement('td');
+                        const divFotos = document.createElement('div');
+                        divFotos.className = 'photo-thumbs';
                         if (venda.idPhoto) {
                             const img = document.createElement('img');
                             img.src = venda.idPhoto;
-                            img.alt = 'CC';
                             img.addEventListener('click', () => abrirImagem(venda.idPhoto));
-                            container.appendChild(img);
+                            divFotos.appendChild(img);
                         }
                         if (venda.nosBill) {
                             const img = document.createElement('img');
                             img.src = venda.nosBill;
-                            img.alt = 'Fatura';
                             img.addEventListener('click', () => abrirImagem(venda.nosBill));
-                            container.appendChild(img);
+                            divFotos.appendChild(img);
                         }
+                        tdFotos.appendChild(divFotos);
+                        tr.appendChild(tdFotos);
+                        // Estado
+                        const tdEstado = document.createElement('td');
+                        const select = document.createElement('select');
+                        select.className = 'estado-select';
+                        select.dataset.index = idxGlobal;
+                        ['Pendente', 'Vendido', 'Recusado'].forEach(est => {
+                            const opt = document.createElement('option');
+                            opt.value = est;
+                            opt.textContent = est === 'Pendente' ? '⏳ Pendente' : (est === 'Vendido' ? '✅ Vendido' : '❌ Recusado');
+                            if (venda.estado === est) opt.selected = true;
+                            select.appendChild(opt);
+                        });
+                        select.addEventListener('change', function() {
+                            sales[this.dataset.index].estado = this.value;
+                            saveData();
+                            renderTable();
+                        });
+                        tdEstado.appendChild(select);
+                        tr.appendChild(tdEstado);
+                        // Ações
+                        const tdAcoes = document.createElement('td');
+                        const btnEdit = document.createElement('button');
+                        btnEdit.textContent = '✏️';
+                        btnEdit.className = 'action-btn';
+                        btnEdit.addEventListener('click', () => editarVenda(idxGlobal));
+                        const btnDel = document.createElement('button');
+                        btnDel.textContent = '🗑️';
+                        btnDel.className = 'action-btn';
+                        btnDel.addEventListener('click', () => eliminarVenda(idxGlobal));
+                        tdAcoes.appendChild(btnEdit);
+                        tdAcoes.appendChild(btnDel);
+                        tr.appendChild(tdAcoes);
 
                         salesBody.appendChild(tr);
                     });
-
-                    // Listeners para botões de editar/apagar
-                    document.querySelectorAll('.edit-btn').forEach(btn => {
-                        btn.addEventListener('click', () => editarVenda(parseInt(btn.dataset.index)));
-                    });
-                    document.querySelectorAll('.delete-btn').forEach(btn => {
-                        btn.addEventListener('click', () => eliminarVenda(parseInt(btn.dataset.index)));
-                    });
-
-                    // Listeners para mudança de estado
-                    document.querySelectorAll('.estado-select').forEach(select => {
-                        select.addEventListener('change', function() {
-                            const idx = parseInt(this.dataset.index);
-                            sales[idx].estado = this.value;
-                            saveData();
-                            renderTable(); // re-render para atualizar cores e totals
-                        });
-                    });
                 }
 
-                // Atualizar totais
-                const totalG = sales.reduce((soma, v) => soma + calcularComissao(v.price), 0);
-                const totalV = sales
-                    .filter(v => v.estado === 'Vendido')
-                    .reduce((soma, v) => soma + calcularComissao(v.price), 0);
-
+                // Totais
+                const totalG = sales.reduce((s, v) => s + calcularComissao(v.price), 0);
+                const totalV = sales.filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcularComissao(v.price), 0);
                 totalGeral.textContent = totalG.toFixed(2) + ' €';
                 totalVendido.textContent = totalV.toFixed(2) + ' €';
                 summaryRow.style.display = sales.length ? 'table-row' : 'none';
             }
 
-            // --- Modal ---
+            // ---------- Modal ----------
             function abrirModal(indice) {
                 currentEditIndex = indice;
-                modal.style.display = 'block';
+                modal.classList.add('active');
                 modalTitle.textContent = indice === -1 ? 'Nova Proposta' : 'Editar Proposta';
                 salesForm.reset();
                 idPhotoPreview.style.display = 'none';
                 nosBillPreview.style.display = 'none';
-
                 if (indice > -1) {
                     const v = sales[indice];
                     clientName.value = v.clientName;
@@ -307,12 +285,14 @@
                     if (v.idPhoto) { idPhotoPreview.src = v.idPhoto; idPhotoPreview.style.display = 'block'; }
                     if (v.nosBill) { nosBillPreview.src = v.nosBill; nosBillPreview.style.display = 'block'; }
                 }
-                clientName.focus();
             }
 
-            function fecharModal() { modal.style.display = 'none'; currentEditIndex = -1; }
+            function fecharModal() {
+                modal.classList.remove('active');
+                currentEditIndex = -1;
+            }
 
-            // --- Compressão de imagens ---
+            // ---------- Compressão de imagem ----------
             function comprimirImagem(file, previewImg) {
                 return new Promise(resolve => {
                     if (!file) return resolve(null);
@@ -322,9 +302,13 @@
                         img.onload = () => {
                             const MAX_WIDTH = 400;
                             let width = img.width, height = img.height;
-                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
                             const canvas = document.createElement('canvas');
-                            canvas.width = width; canvas.height = height;
+                            canvas.width = width;
+                            canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
                             const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
@@ -338,10 +322,14 @@
                 });
             }
 
-            async function handleIdPhoto(e) { e.target._dataUrl = await comprimirImagem(e.target.files[0], idPhotoPreview); }
-            async function handleNosBill(e) { e.target._dataUrl = await comprimirImagem(e.target.files[0], nosBillPreview); }
+            async function handleIdPhoto(e) {
+                e.target._dataUrl = await comprimirImagem(e.target.files[0], idPhotoPreview);
+            }
+            async function handleNosBill(e) {
+                e.target._dataUrl = await comprimirImagem(e.target.files[0], nosBillPreview);
+            }
 
-            // --- Submeter ---
+            // ---------- Submeter ----------
             async function handleSubmit(e) {
                 e.preventDefault();
                 const idPhoto = idPhotoInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].idPhoto : null);
@@ -354,8 +342,50 @@
                     iban: iban.value.trim(),
                     idPhoto: idPhoto || null,
                     nosBill: nosBill || null,
-                    estado: currentEditIndex > -1 ? sales[currentEditIndex].estado : 'Pendente'   // mantém estado na edição
+                    estado: currentEditIndex > -1 ? sales[currentEditIndex].estado : 'Pendente'
                 };
 
-                if (currentEditIndex === -1) sales.unshift(nova);
- 
+                if (currentEditIndex === -1) {
+                    sales.unshift(nova);
+                } else {
+                    sales[currentEditIndex] = nova;
+                }
+
+                saveData();
+                renderTable();
+                fecharModal();
+                idPhotoInput._dataUrl = undefined;
+                nosBillInput._dataUrl = undefined;
+            }
+
+            function editarVenda(idx) { abrirModal(idx); }
+            function eliminarVenda(idx) {
+                if (confirm('Eliminar esta proposta?')) {
+                    sales.splice(idx, 1);
+                    saveData();
+                    renderTable();
+                }
+            }
+
+            function abrirImagem(src) {
+                const div = document.createElement('div');
+                div.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000;';
+                div.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer;">&times;</span>
+                                 <img src="${src}" style="max-width:90%; max-height:90%;">`;
+                div.querySelector('span').addEventListener('click', () => div.remove());
+                document.body.appendChild(div);
+            }
+
+            // ---------- Diagnóstico ----------
+            function testarArmazenamento() {
+                diagnosticoDiv.style.display = 'block';
+                try {
+                    const testKey = '__test_voda__';
+                    localStorage.setItem(testKey, 'ok');
+                    localStorage.removeItem(testKey);
+                    diagnosticoDiv.innerHTML = '✅ <strong>Armazenamento funciona!</strong> Pode guardar dados.';
+                    diagnosticoDiv.style.background = '#d4edda';
+                } catch (e) {
+                    diagnosticoDiv.innerHTML = '❌ <strong>Erro no armazenamento:</strong> ' + e.message + '<br>Tente limpar os dados do navegador ou use outro browser.';
+                    diagnosticoDiv.style.background = '#f8d7da';
+         

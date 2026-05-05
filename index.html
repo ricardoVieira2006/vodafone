@@ -17,17 +17,23 @@
         #searchInput:focus { border-color: #e60000; }
         .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
+
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px; }
         tr:hover { background: #f8f9fa; }
         tfoot td { background: #f8f9fa; font-weight: bold; }
-        .photo-thumbs { display: flex; gap: 5px; }
+        .photo-thumbs { display: flex; gap: 5px; flex-wrap: wrap; }
         .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; }
         .action-btn { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 4px; transition: background 0.2s; font-size: 1.2rem; }
         .edit-btn { color: #007bff; }
         .edit-btn:hover { background: #007bff20; }
         .delete-btn { color: #dc3545; }
         .delete-btn:hover { background: #dc354520; }
+        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        .estado-pendente { background: #fff3cd; color: #856404; border-color: #ffc107; }
+        .estado-vendido { background: #d4edda; color: #155724; border-color: #28a745; }
+        .estado-recusado { background: #f8d7da; color: #721c24; border-color: #dc3545; }
+
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
         .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideIn 0.3s; }
         .close { position: absolute; right: 20px; top: 15px; font-size: 2rem; cursor: pointer; color: #999; }
@@ -45,50 +51,68 @@
         #cancelBtn { background: #6c757d; color: white; }
         #cancelBtn:hover { background: #545b62; }
         .empty-state { text-align: center; padding: 40px; color: #888; font-style: italic; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Mobile: transformar a tabela em cartões */
         @media (max-width: 768px) {
             .container { padding: 10px; }
             header { flex-direction: column; gap: 15px; text-align: center; }
-            th, td { padding: 10px 8px; font-size: 0.9rem; }
-            .photo-thumbs img { width: 30px; height: 30px; }
-            .modal-content { width: 95%; margin: 10% auto; padding: 20px; }
+            header h1 { font-size: 1.4rem; }
+
+            /* Esconde cabeçalho da tabela */
+            thead { display: none; }
+            /* Faz cada linha virar um card */
+            tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; padding: 10px; background: white; }
+            td { display: block; text-align: right; padding: 8px 10px; border: none; position: relative; }
+            td::before { content: attr(data-label); float: left; font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.8rem; }
+            .photo-thumbs { justify-content: flex-end; }
+            tfoot tr { display: flex; justify-content: space-between; }
+            tfoot td { display: block; padding: 10px; }
+            tfoot td::before { content: none; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Organizador de Propostas/Vendas Vodafone</h1>
-            <button id="addBtn">+ Adicionar Nova Proposta</button>
+            <h1>📊 Vendas Vodafone</h1>
+            <button id="addBtn">+ Nova Proposta</button>
         </header>
+
         <div class="search-section">
-            <input type="text" id="searchInput" placeholder="Buscar por nome do cliente...">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por nome do cliente...">
         </div>
+
         <div class="table-container">
             <table id="salesTable">
                 <thead>
                     <tr>
-                        <th>Nome Cliente</th>
-                        <th>Pacote/Descrição</th>
+                        <th>Cliente</th>
+                        <th>Pacote</th>
                         <th>Preço (€)</th>
                         <th>Comissão (€)</th>
                         <th>IBAN</th>
                         <th>Fotos</th>
+                        <th>Estado</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="salesBody"></tbody>
                 <tfoot id="summaryRow" style="display:none;">
                     <tr>
-                        <td colspan="6" style="text-align:right;">Total da faturação:</td>
-                        <td id="totalComissao" style="color:#e60000;">0.00 €</td>
+                        <td colspan="6" style="text-align:right;">
+                            <span style="margin-right:20px;">🔵 Total geral: <strong id="totalGeral">0.00 €</strong></span>
+                            <span>🟢 Total vendido: <strong id="totalVendido">0.00 €</strong></span>
+                        </td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal igual ao anterior -->
         <div id="modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
@@ -96,18 +120,24 @@
                 <form id="salesForm">
                     <label for="clientName">Nome do Cliente:</label>
                     <input type="text" id="clientName" required>
+
                     <label for="packageDesc">Pacote/Descrição:</label>
                     <textarea id="packageDesc" required></textarea>
+
                     <label for="price">Preço (€):</label>
                     <input type="number" id="price" step="0.01" required>
+
                     <label for="iban">IBAN da Conta:</label>
                     <input type="text" id="iban" required>
+
                     <label>Foto Cartão Cidadão:</label>
                     <input type="file" id="idPhoto" accept="image/*">
                     <img id="idPhotoPreview" class="photo-preview" style="display:none;">
+
                     <label>Fatura NOS:</label>
                     <input type="file" id="nosBill" accept="image/*">
                     <img id="nosBillPreview" class="photo-preview" style="display:none;">
+
                     <div class="form-actions">
                         <button type="submit">Guardar</button>
                         <button type="button" id="cancelBtn">Cancelar</button>
@@ -123,11 +153,13 @@
             let currentEditIndex = -1;
             const STORAGE_KEY = 'vodafone_sales_data';
 
+            // DOM elements
             const addBtn = document.getElementById('addBtn');
             const searchInput = document.getElementById('searchInput');
             const salesBody = document.getElementById('salesBody');
             const summaryRow = document.getElementById('summaryRow');
-            const totalComissao = document.getElementById('totalComissao');
+            const totalGeral = document.getElementById('totalGeral');
+            const totalVendido = document.getElementById('totalVendido');
             const modal = document.getElementById('modal');
             const salesForm = document.getElementById('salesForm');
             const closeBtn = document.querySelector('.close');
@@ -149,6 +181,8 @@
                 if (data) {
                     try { sales = JSON.parse(data); } catch (e) { sales = []; }
                 }
+                // garantir que vendas antigas sem estado fiquem como 'Pendente'
+                sales.forEach(s => { if (!s.estado) s.estado = 'Pendente'; });
             }
 
             function saveData() {
@@ -159,39 +193,53 @@
                 }
             }
 
-            // Fórmula: (preço + 5) * 2
             function calcularComissao(preco) { return (parseFloat(preco) + 5) * 2; }
 
             function escapeHtml(texto) {
                 return String(texto).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
             }
 
-            // --- Render da tabela (SEM onclick inline) ---
+            // --- Render da tabela ---
             function renderTable() {
                 const termo = searchInput.value.toLowerCase().trim();
                 const filtradas = termo ? sales.filter(v => v.clientName.toLowerCase().includes(termo)) : sales;
                 salesBody.innerHTML = '';
 
                 if (filtradas.length === 0) {
-                    salesBody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma proposta encontrada.</td></tr>';
+                    salesBody.innerHTML = '<tr><td colspan="8" class="empty-state">Nenhuma proposta encontrada.</td></tr>';
                 } else {
                     filtradas.forEach(venda => {
                         const idxGlobal = sales.indexOf(venda);
                         const comissao = calcularComissao(venda.price);
                         const tr = document.createElement('tr');
+
+                        // Definir classe do estado
+                        let estadoClass = '';
+                        if (venda.estado === 'Vendido') estadoClass = 'estado-vendido';
+                        else if (venda.estado === 'Recusado') estadoClass = 'estado-recusado';
+                        else estadoClass = 'estado-pendente';
+
                         tr.innerHTML = `
-                            <td>${escapeHtml(venda.clientName)}</td>
-                            <td>${escapeHtml(venda.packageDesc)}</td>
-                            <td>€${parseFloat(venda.price).toFixed(2)}</td>
-                            <td><strong>€${comissao.toFixed(2)}</strong></td>
-                            <td>${escapeHtml(venda.iban.slice(0,4) + '...' + venda.iban.slice(-4))}</td>
-                            <td><div class="photo-thumbs"></div></td>
-                            <td>
+                            <td data-label="Cliente">${escapeHtml(venda.clientName)}</td>
+                            <td data-label="Pacote">${escapeHtml(venda.packageDesc)}</td>
+                            <td data-label="Preço">€${parseFloat(venda.price).toFixed(2)}</td>
+                            <td data-label="Comissão"><strong>€${comissao.toFixed(2)}</strong></td>
+                            <td data-label="IBAN">${escapeHtml(venda.iban.slice(0,4) + '...' + venda.iban.slice(-4))}</td>
+                            <td data-label="Fotos"><div class="photo-thumbs"></div></td>
+                            <td data-label="Estado">
+                                <select class="estado-select ${estadoClass}" data-index="${idxGlobal}">
+                                    <option value="Pendente" ${venda.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                                    <option value="Vendido" ${venda.estado === 'Vendido' ? 'selected' : ''}>✅ Vendido</option>
+                                    <option value="Recusado" ${venda.estado === 'Recusado' ? 'selected' : ''}>❌ Recusado</option>
+                                </select>
+                            </td>
+                            <td data-label="Ações">
                                 <button class="action-btn edit-btn" data-index="${idxGlobal}" title="Editar">✏️</button>
                                 <button class="action-btn delete-btn" data-index="${idxGlobal}" title="Eliminar">🗑️</button>
                             </td>
                         `;
-                        // Adiciona imagens com event listeners
+
+                        // Imagens com listeners
                         const container = tr.querySelector('.photo-thumbs');
                         if (venda.idPhoto) {
                             const img = document.createElement('img');
@@ -207,20 +255,37 @@
                             img.addEventListener('click', () => abrirImagem(venda.nosBill));
                             container.appendChild(img);
                         }
+
                         salesBody.appendChild(tr);
                     });
 
+                    // Listeners para botões de editar/apagar
                     document.querySelectorAll('.edit-btn').forEach(btn => {
                         btn.addEventListener('click', () => editarVenda(parseInt(btn.dataset.index)));
                     });
                     document.querySelectorAll('.delete-btn').forEach(btn => {
                         btn.addEventListener('click', () => eliminarVenda(parseInt(btn.dataset.index)));
                     });
+
+                    // Listeners para mudança de estado
+                    document.querySelectorAll('.estado-select').forEach(select => {
+                        select.addEventListener('change', function() {
+                            const idx = parseInt(this.dataset.index);
+                            sales[idx].estado = this.value;
+                            saveData();
+                            renderTable(); // re-render para atualizar cores e totals
+                        });
+                    });
                 }
 
-                // Sumário
-                const total = sales.reduce((soma, v) => soma + calcularComissao(v.price), 0);
-                totalComissao.textContent = total.toFixed(2) + ' €';
+                // Atualizar totais
+                const totalG = sales.reduce((soma, v) => soma + calcularComissao(v.price), 0);
+                const totalV = sales
+                    .filter(v => v.estado === 'Vendido')
+                    .reduce((soma, v) => soma + calcularComissao(v.price), 0);
+
+                totalGeral.textContent = totalG.toFixed(2) + ' €';
+                totalVendido.textContent = totalV.toFixed(2) + ' €';
                 summaryRow.style.display = sales.length ? 'table-row' : 'none';
             }
 
@@ -288,50 +353,9 @@
                     price: price.value,
                     iban: iban.value.trim(),
                     idPhoto: idPhoto || null,
-                    nosBill: nosBill || null
+                    nosBill: nosBill || null,
+                    estado: currentEditIndex > -1 ? sales[currentEditIndex].estado : 'Pendente'   // mantém estado na edição
                 };
 
                 if (currentEditIndex === -1) sales.unshift(nova);
-                else sales[currentEditIndex] = nova;
-
-                saveData();
-                renderTable();
-                fecharModal();
-                idPhotoInput._dataUrl = undefined;
-                nosBillInput._dataUrl = undefined;
-            }
-
-            function editarVenda(idx) { abrirModal(idx); }
-            function eliminarVenda(idx) {
-                if (confirm('Tem a certeza que quer eliminar?')) { sales.splice(idx, 1); saveData(); renderTable(); }
-            }
-
-            function abrirImagem(src) {
-                const modalImg = document.createElement('div');
-                modalImg.className = 'modal';
-                modalImg.style.display = 'flex';
-                modalImg.style.alignItems = 'center';
-                modalImg.style.justifyContent = 'center';
-                modalImg.style.background = 'rgba(0,0,0,0.9)';
-                modalImg.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer" onclick="this.parentElement.remove()">&times;</span>
-                                      <img src="${src}" style="max-width:90%; max-height:90%; object-fit:contain;">`;
-                document.body.appendChild(modalImg);
-            }
-
-            // Event listeners
-            addBtn.addEventListener('click', () => abrirModal(-1));
-            searchInput.addEventListener('input', renderTable);
-            closeBtn.addEventListener('click', fecharModal);
-            cancelBtn.addEventListener('click', fecharModal);
-            window.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
-            idPhotoInput.addEventListener('change', handleIdPhoto);
-            nosBillInput.addEventListener('change', handleNosBill);
-            salesForm.addEventListener('submit', handleSubmit);
-
-            // Arranque
-            loadData();
-            renderTable();
-        })();
-    </script>
-</body>
-</html>
+ 

@@ -3,442 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendas Vodafone - Organizador</title>
+    <title>Vodafone Vendas Pro</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        :root {
+            --red: #e60000;
+            --dark: #1a1a1a;
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #ecf0f1;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --shadow: 0 4px 20px rgba(0,0,0,0.06);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; padding: 15px; }
-        .container { max-width: 1100px; margin: auto; }
-        header { background: #e60000; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        header h1 { font-size: 1.5rem; }
-        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .btn:hover { background: #ffe6e6; }
-        .btn-reset { background: #333; color: white; }
-        .search-box { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
-        .table-wrapper { background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 750px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f9f9f9; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #555; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-        .badge-pendente { background: #fff3cd; color: #856404; }
-        .badge-vendido { background: #d4edda; color: #155724; }
-        .badge-recusado { background: #f8d7da; color: #721c24; }
-        .photo-thumbs { display: flex; gap: 6px; flex-wrap: wrap; }
-        .photo-thumbs img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px; }
-        .edit-btn { color: #007bff; }
-        .delete-btn { color: #dc3545; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+        .header { background: var(--dark); color: white; padding: 24px 28px; border-radius: var(--radius); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+        .header h1 { font-size: 1.8rem; font-weight: 700; }
+        .header h1 span { color: var(--red); }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 12px 22px; border: none; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--red); color: white; box-shadow: 0 4px 12px rgba(230,0,0,0.3); }
+        .btn-primary:hover { background: #cc0000; transform: translateY(-2px); }
+        .btn-outline { background: white; color: var(--red); border: 2px solid var(--red); }
+        .btn-outline:hover { background: #fff5f5; }
+        .search-bar { margin-bottom: 24px; }
+        .search-bar input { width: 100%; padding: 14px 20px; border: 2px solid var(--border); border-radius: 50px; font-size: 1rem; box-shadow: var(--shadow); transition: 0.3s; }
+        .search-bar input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,0,0,0.1); }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .summary-card { background: var(--card); padding: 20px; border-radius: var(--radius-sm); box-shadow: var(--shadow); border-left: 4px solid var(--red); }
+        .summary-card.success { border-left-color: var(--success); }
+        .summary-card h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+        .summary-card .value { font-size: 2rem; font-weight: 700; }
+        .table-wrapper { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #fafbfc; }
+        th { padding: 16px; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); border-bottom: 2px solid var(--border); }
+        td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover { background: #f8fafc; }
+        .client-name { font-weight: 600; }
+        .package { color: var(--text-light); font-size: 0.9rem; }
+        .price { font-weight: 600; }
+        .commission { font-weight: 700; color: var(--success); font-size: 1.1rem; }
+        .estado-select { padding: 8px 14px; border-radius: 50px; border: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        .estado-pendente { background: #fff8e1; color: #b45309; border-color: #fbbf24; }
+        .estado-vendido { background: #dcfce7; color: #15803d; border-color: #4ade80; }
+        .estado-recusado { background: #fee2e2; color: #b91c1c; border-color: #f87171; }
+        .action-icons { display: flex; gap: 8px; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 6px; border-radius: 8px; }
+        .icon-btn.edit { color: #3b82f6; }
+        .icon-btn.delete { color: #ef4444; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 480px; position: relative; }
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: #888; }
-        .modal-close:hover { color: #333; }
-        label { font-weight: 600; display: block; margin: 12px 0 4px; }
-        input, textarea, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        textarea { height: 80px; resize: vertical; }
-        .form-buttons { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-save { background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; }
-        .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; cursor: pointer; }
-
-        .aviso { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
-        .empty-msg { text-align: center; padding: 30px; color: #888; }
+        .modal-card { background: white; padding: 32px; border-radius: var(--radius); width: 90%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 1.4rem; }
+        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-light); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--red); }
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .modal-actions button { flex: 1; }
+        .empty-state { text-align: center; padding: 60px; color: #b0b8c1; }
+        .img-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .img-overlay img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+        .img-overlay .close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2.5rem; cursor: pointer; }
 
         @media (max-width: 768px) {
-            table { min-width: 100%; }
+            .header { flex-direction: column; align-items: flex-start; }
             thead { display: none; }
-            tr { display: block; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; padding: 12px; background: white; }
+            tr { display: block; margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; background: white; box-shadow: var(--shadow); }
             td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; }
-            td::before { content: attr(data-label); font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.75rem; }
-            .photo-thumbs { justify-content: flex-end; }
+            td::before { content: attr(data-label); font-weight: 600; color: var(--text-light); text-transform: uppercase; font-size: 0.75rem; margin-right: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📊 Vendas Vodafone</h1>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn" id="btnAdd">+ Nova proposta</button>
-                <button class="btn btn-reset" id="btnReset">🗑️ Limpar tudo</button>
-            </div>
-        </header>
-
-        <div id="aviso" class="aviso"></div>
-
-        <input type="text" class="search-box" id="pesquisa" placeholder="🔍 Procurar cliente...">
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Pacote</th>
-                        <th>Preço</th>
-                        <th>Comissão</th>
-                        <th>IBAN</th>
-                        <th>Fotos</th>
-                        <th>Estado</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-                <tfoot id="footerRow" style="display:none;">
-                    <tr>
-                        <td colspan="6" style="text-align:right;">
-                            <span style="margin-right:20px;">🔵 Total geral: <strong id="totalGeral">0.00 €</strong></span>
-                            <span>🟢 Total vendido: <strong id="totalVendido">0.00 €</strong></span>
-                        </td>
-                        <td colspan="2"></td>
-                    </tr>
-                </tfoot>
-            </table>
+<div class="container">
+    <div class="header">
+        <h1>📊 <span>Vodafone</span> Vendas Pro</h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="btnAdd">+ Nova proposta</button>
+            <button class="btn btn-outline" id="btnReset">🗑️ Limpar tudo</button>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="modalVenda" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" id="closeModal">&times;</span>
-            <h2 id="modalTitulo">Nova Proposta</h2>
-            <form id="formVenda">
+    <div class="search-bar">
+        <input type="text" id="pesquisa" placeholder="🔍 Pesquisar cliente...">
+    </div>
+
+    <div class="summary-cards">
+        <div class="summary-card">
+            <h3>Total Geral</h3>
+            <div class="value" id="totalGeral">0,00 €</div>
+        </div>
+        <div class="summary-card success">
+            <h3>Total Vendido</h3>
+            <div class="value" id="totalVendido">0,00 €</div>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Comissão</th><th>Estado</th><th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modalVenda">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 id="modalTitle">Nova Proposta</h2>
+            <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <form id="formVenda">
+            <div class="form-group">
                 <label>Nome do cliente</label>
-                <input type="text" id="nome" required autocomplete="off">
-                <label>Pacote / descrição</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="form-group">
+                <label>Pacote / Descrição</label>
                 <textarea id="pacote" required></textarea>
+            </div>
+            <div class="form-group">
                 <label>Preço (€)</label>
                 <input type="number" id="preco" step="0.01" required>
+            </div>
+            <div class="form-group">
                 <label>IBAN</label>
-                <input type="text" id="iban" required>
-                <label>Foto Cartão Cidadão</label>
-                <input type="file" id="fotoCC" accept="image/*">
-                <img id="previewCC" style="max-width:120px; display:none; margin-top:5px; border-radius:8px;">
-                <label>Fatura NOS</label>
-                <input type="file" id="faturaNOS" accept="image/*">
-                <img id="previewFatura" style="max-width:120px; display:none; margin-top:5px; border-radius:8px;">
-                <div class="form-buttons">
-                    <button type="submit" class="btn-save">Guardar</button>
-                    <button type="button" class="btn-cancel" id="btnCancel">Cancelar</button>
-                </div>
-            </form>
-        </div>
+                <input type="text" id="iban">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-outline" id="btnCancel">Cancelar</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        (function() {
-            // ---------- BASE DE DADOS LOCAL ----------
-            const STORAGE_KEY = 'vodafone_vendas';
-            let vendas = [];
-            let editIndex = -1;
+<script>
+// ⚠️ SUBSTITUI AQUI pelo teu firebaseConfig real
+const firebaseConfig = {
+    /* COLA AQUI O TEU firebaseConfig */
+};
 
-            // Elementos do DOM
-            const btnAdd = document.getElementById('btnAdd');
-            const btnReset = document.getElementById('btnReset');
-            const pesquisa = document.getElementById('pesquisa');
-            const tableBody = document.getElementById('tableBody');
-            const footerRow = document.getElementById('footerRow');
-            const totalGeralSpan = document.getElementById('totalGeral');
-            const totalVendidoSpan = document.getElementById('totalVendido');
-            const avisoDiv = document.getElementById('aviso');
-            const modal = document.getElementById('modalVenda');
-            const closeModal = document.getElementById('closeModal');
-            const btnCancel = document.getElementById('btnCancel');
-            const modalTitulo = document.getElementById('modalTitulo');
-            const formVenda = document.getElementById('formVenda');
-            const inputNome = document.getElementById('nome');
-            const inputPacote = document.getElementById('pacote');
-            const inputPreco = document.getElementById('preco');
-            const inputIban = document.getElementById('iban');
-            const inputFotoCC = document.getElementById('fotoCC');
-            const inputFaturaNOS = document.getElementById('faturaNOS');
-            const previewCC = document.getElementById('previewCC');
-            const previewFatura = document.getElementById('previewFatura');
+// Inicializa Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const vendasRef = db.collection("vendas");
 
-            // ---------- UTILITÁRIOS ----------
-            function calcComissao(preco) {
-                return (parseFloat(preco) + 5) * 2;
-            }
+let vendas = [];
+let editIndex = -1;
 
-            function mostrarAviso(texto, tipo) {
-                avisoDiv.style.display = 'block';
-                avisoDiv.textContent = texto;
-                avisoDiv.style.background = tipo === 'erro' ? '#f8d7da' : '#fff3cd';
-            }
+function calcComissao(preco) {
+    return (parseFloat(preco) + 5) * 2;
+}
 
-            function esconderAviso() {
-                avisoDiv.style.display = 'none';
-            }
+function renderizar() {
+    const termo = document.getElementById('pesquisa').value.toLowerCase().trim();
+    const filtradas = termo ? vendas.filter(v => v.nome.toLowerCase().includes(termo)) : vendas;
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
 
-            // ---------- PERSISTÊNCIA ----------
-            function carregarDados() {
-                try {
-                    const dados = localStorage.getItem(STORAGE_KEY);
-                    if (dados) {
-                        vendas = JSON.parse(dados);
-                        // garantir estado padrão
-                        vendas.forEach(v => { if (!v.estado) v.estado = 'Pendente'; });
-                    } else {
-                        vendas = [];
-                    }
-                    esconderAviso();
-                } catch (e) {
-                    vendas = [];
-                    mostrarAviso('Erro ao carregar dados. A lista foi limpa.', 'erro');
-                }
-            }
+    if (filtradas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta encontrada</td></tr>';
+    } else {
+        filtradas.forEach(v => {
+            const comissao = calcComissao(v.preco);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Cliente"><span class="client-name">${v.nome}</span></td>
+                <td data-label="Pacote"><span class="package">${v.pacote}</span></td>
+                <td data-label="Preço"><span class="price">€${parseFloat(v.preco).toFixed(2)}</span></td>
+                <td data-label="Comissão"><span class="commission">€${comissao.toFixed(2)}</span></td>
+                <td data-label="Estado">
+                    <select class="estado-select ${v.estado === 'Vendido' ? 'estado-vendido' : (v.estado === 'Recusado' ? 'estado-recusado' : 'estado-pendente')}" data-id="${v.id}">
+                        <option value="Pendente" ${v.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
+                        <option value="Vendido" ${v.estado === 'Vendido' ? 'selected' : ''}>✅ Vendido</option>
+                        <option value="Recusado" ${v.estado === 'Recusado' ? 'selected' : ''}>❌ Recusado</option>
+                    </select>
+                </td>
+                <td data-label="Ações">
+                    <div class="action-icons">
+                        <button class="icon-btn edit" data-id="${v.id}">✏️</button>
+                        <button class="icon-btn delete" data-id="${v.id}">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
 
-            function salvarDados() {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(vendas));
-                    esconderAviso();
-                    return true;
-                } catch (e) {
-                    mostrarAviso('❌ Armazenamento CHEIO! Remova fotos ou vendas antigas.', 'erro');
-                    return false;
-                }
-            }
-
-            // ---------- RENDER TABELA ----------
-            function renderizar() {
-                const termo = pesquisa.value.toLowerCase().trim();
-                const filtradas = termo ? vendas.filter(v => v.nome.toLowerCase().includes(termo)) : vendas;
-
-                tableBody.innerHTML = '';
-
-                if (filtradas.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="8" class="empty-msg">Nenhuma proposta encontrada.</td>';
-                    tableBody.appendChild(tr);
-                } else {
-                    filtradas.forEach(venda => {
-                        const idx = vendas.indexOf(venda);
-                        const comissao = calcComissao(venda.preco);
-                        const tr = document.createElement('tr');
-
-                        // Colunas
-                        const cols = [
-                            { label: 'Cliente', valor: venda.nome },
-                            { label: 'Pacote', valor: venda.pacote },
-                            { label: 'Preço', valor: '€' + parseFloat(venda.preco).toFixed(2) },
-                            { label: 'Comissão', valor: '<strong>€' + comissao.toFixed(2) + '</strong>', html: true },
-                            { label: 'IBAN', valor: venda.iban.slice(0,4) + '...' + venda.iban.slice(-4) }
-                        ];
-
-                        cols.forEach(col => {
-                            const td = document.createElement('td');
-                            td.setAttribute('data-label', col.label);
-                            if (col.html) td.innerHTML = col.valor;
-                            else td.textContent = col.valor;
-                            tr.appendChild(td);
-                        });
-
-                        // Fotos
-                        const tdFotos = document.createElement('td');
-                        tdFotos.setAttribute('data-label', 'Fotos');
-                        const divFotos = document.createElement('div');
-                        divFotos.className = 'photo-thumbs';
-                        if (venda.fotoCC) {
-                            const img = document.createElement('img');
-                            img.src = venda.fotoCC;
-                            img.addEventListener('click', () => ampliarImagem(venda.fotoCC));
-                            divFotos.appendChild(img);
-                        }
-                        if (venda.faturaNOS) {
-                            const img = document.createElement('img');
-                            img.src = venda.faturaNOS;
-                            img.addEventListener('click', () => ampliarImagem(venda.faturaNOS));
-                            divFotos.appendChild(img);
-                        }
-                        tdFotos.appendChild(divFotos);
-                        tr.appendChild(tdFotos);
-
-                        // Estado
-                        const tdEstado = document.createElement('td');
-                        tdEstado.setAttribute('data-label', 'Estado');
-                        const selectEstado = document.createElement('select');
-                        selectEstado.className = 'badge';
-                        const estados = ['Pendente', 'Vendido', 'Recusado'];
-                        estados.forEach(est => {
-                            const opt = document.createElement('option');
-                            opt.value = est;
-                            opt.textContent = est === 'Pendente' ? '⏳ Pendente' : est === 'Vendido' ? '✅ Vendido' : '❌ Recusado';
-                            if (venda.estado === est) opt.selected = true;
-                            selectEstado.appendChild(opt);
-                        });
-                        selectEstado.classList.add('badge-' + venda.estado.toLowerCase());
-                        selectEstado.addEventListener('change', function() {
-                            vendas[idx].estado = this.value;
-                            salvarDados();
-                            renderizar();
-                        });
-                        tdEstado.appendChild(selectEstado);
-                        tr.appendChild(tdEstado);
-
-                        // Ações
-                        const tdAcoes = document.createElement('td');
-                        tdAcoes.setAttribute('data-label', 'Ações');
-                        const btnEdit = document.createElement('button');
-                        btnEdit.textContent = '✏️';
-                        btnEdit.className = 'action-btn edit-btn';
-                        btnEdit.addEventListener('click', () => abrirModal(idx));
-                        const btnDel = document.createElement('button');
-                        btnDel.textContent = '🗑️';
-                        btnDel.className = 'action-btn delete-btn';
-                        btnDel.addEventListener('click', () => {
-                            if (confirm('Eliminar esta proposta?')) {
-                                vendas.splice(idx, 1);
-                                salvarDados();
-                                renderizar();
-                            }
-                        });
-                        tdAcoes.appendChild(btnEdit);
-                        tdAcoes.appendChild(btnDel);
-                        tr.appendChild(tdAcoes);
-
-                        tableBody.appendChild(tr);
-                    });
-                }
-
-                // Totais
-                const totalG = vendas.reduce((acc, v) => acc + calcComissao(v.preco), 0);
-                const totalV = vendas.filter(v => v.estado === 'Vendido').reduce((acc, v) => acc + calcComissao(v.preco), 0);
-                totalGeralSpan.textContent = totalG.toFixed(2) + ' €';
-                totalVendidoSpan.textContent = totalV.toFixed(2) + ' €';
-                footerRow.style.display = vendas.length ? 'table-row' : 'none';
-            }
-
-            // ---------- MODAL ----------
-            function abrirModal(index = -1) {
-                editIndex = index;
-                modalTitulo.textContent = index === -1 ? 'Nova Proposta' : 'Editar Proposta';
-                formVenda.reset();
-                previewCC.style.display = 'none';
-                previewFatura.style.display = 'none';
-                if (index >= 0) {
-                    const v = vendas[index];
-                    inputNome.value = v.nome;
-                    inputPacote.value = v.pacote;
-                    inputPreco.value = v.preco;
-                    inputIban.value = v.iban;
-                    if (v.fotoCC) { previewCC.src = v.fotoCC; previewCC.style.display = 'block'; }
-                    if (v.faturaNOS) { previewFatura.src = v.faturaNOS; previewFatura.style.display = 'block'; }
-                }
-                modal.classList.add('active');
-                inputNome.focus();
-            }
-
-            function fecharModal() {
-                modal.classList.remove('active');
-                editIndex = -1;
-            }
-
-            // Compressão de imagem (máx. 400px largura, JPEG 70%)
-            function comprimirImagem(file, previewEl) {
-                return new Promise(resolve => {
-                    if (!file) return resolve(null);
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const MAX_W = 400;
-                            let w = img.width, h = img.height;
-                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
-                            const canvas = document.createElement('canvas');
-                            canvas.width = w; canvas.height = h;
-                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                            previewEl.src = dataUrl;
-                            previewEl.style.display = 'block';
-                            resolve(dataUrl);
-                        };
-                        img.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            inputFotoCC.addEventListener('change', async function(e) {
-                this._dataUrl = await comprimirImagem(e.target.files[0], previewCC);
+        document.querySelectorAll('.icon-btn.edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const v = vendas.find(v => v.id === id);
+                if (v) abrirModal(v);
             });
-            inputFaturaNOS.addEventListener('change', async function(e) {
-                this._dataUrl = await comprimirImagem(e.target.files[0], previewFatura);
-            });
-
-            // Submeter formulário
-            formVenda.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const nome = inputNome.value.trim();
-                const pacote = inputPacote.value.trim();
-                const preco = inputPreco.value;
-                const iban = inputIban.value.trim();
-                if (!nome || !pacote || !preco || !iban) {
-                    alert('Preencha todos os campos obrigatórios.');
-                    return;
-                }
-
-                const fotoCC = inputFotoCC._dataUrl || (editIndex >= 0 ? vendas[editIndex].fotoCC : null);
-                const faturaNOS = inputFaturaNOS._dataUrl || (editIndex >= 0 ? vendas[editIndex].faturaNOS : null);
-
-                const nova = {
-                    nome, pacote, preco, iban,
-                    fotoCC: fotoCC || null,
-                    faturaNOS: faturaNOS || null,
-                    estado: editIndex >= 0 ? vendas[editIndex].estado : 'Pendente'
-                };
-
-                if (editIndex === -1) {
-                    vendas.unshift(nova);
-                } else {
-                    vendas[editIndex] = nova;
-                }
-
-                if (salvarDados()) {
-                    renderizar();
-                    fecharModal();
-                    // limpar dados temporários
-                    inputFotoCC._dataUrl = undefined;
-                    inputFaturaNOS._dataUrl = undefined;
+        });
+        document.querySelectorAll('.icon-btn.delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                if (confirm('Eliminar esta proposta?')) {
+                    await vendasRef.doc(id).delete();
                 }
             });
-
-            function ampliarImagem(src) {
-                const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000;';
-                overlay.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer;">&times;</span>
-                                     <img src="${src}" style="max-width:90%; max-height:90%;">`;
-                overlay.querySelector('span').addEventListener('click', () => overlay.remove());
-                document.body.appendChild(overlay);
-            }
-
-            // ---------- EVENTOS ----------
-            btnAdd.addEventListener('click', () => abrirModal(-1));
-            btnReset.addEventListener('click', () => {
-                if (confirm('⚠️ Apagar TODAS as vendas? Esta ação não pode ser desfeita.')) {
-                    localStorage.removeItem(STORAGE_KEY);
-                    vendas = [];
-                    renderizar();
-                }
+        });
+        document.querySelectorAll('.estado-select').forEach(sel => {
+            sel.addEventListener('change', async function() {
+                const id = this.dataset.id;
+                const novoEstado = this.value;
+                await vendasRef.doc(id).update({ estado: novoEstado });
             });
-            closeModal.addEventListener('click', fecharModal);
-            btnCancel.addEventListener('click', fecharModal);
-            window.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
-            pesquisa.addEventListener('input', renderizar);
+        });
+    }
 
-            // ---------- ARRANQUE ----------
-            if (!localStorage) {
-                mostrarAviso('O seu navegador não suporta armazenamento local. Use outro browser.', 'erro');
-            } else {
-                carregarDados();
-                renderizar();
-                // teste silencioso de escrita
-                try {
-                    localStorage.setItem('__t', '1');
-                    localStorage.removeItem('__t');
-                } catch (e) {
-                    mostrarAviso('Armazenamento bloqueado! Verifique as definições do navegador.', 'erro');
-                }
-            }
-        })();
-    </script>
+    const totalG = vendas.reduce((s, v) => s + calcComissao(v.preco), 0);
+    const totalV = vendas.filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcComissao(v.preco), 0);
+    document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
+    document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
+}
+
+function abrirModal(venda = null) {
+    editIndex = venda ? vendas.findIndex(v => v.id === venda.id) : -1;
+    document.getElementById('modalTitle').textContent = venda ? 'Editar Proposta' : 'Nova Proposta';
+    document.getElementById('nome').value = venda ? venda.nome : '';
+    document.getElementById('pacote').value = venda ? venda.pacote : '';
+    document.getElementById('preco').value = venda ? venda.preco : '';
+    document.getElementById('iban').value = venda ? (venda.iban || '') : '';
+    document.getElementById('modalVenda').classList.add('active');
+}
+
+function fecharModal() {
+    document.getElementById('modalVenda').classList.remove('active');
+    editIndex = -1;
+}
+
+function escutarMudancas() {
+    vendasRef.orderBy("data", "desc").onSnapshot(snapshot => {
+        vendas = [];
+        snapshot.forEach(doc => {
+            vendas.push({ id: doc.id, ...doc.data() });
+        });
+        renderizar();
+    });
+}
+
+document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
+document.getElementById('btnReset').addEventListener('click', async () => {
+    if (confirm('⚠️ Apagar TODAS as vendas?')) {
+        const snapshot = await vendasRef.get();
+        const batch = db.batch();
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+    }
+});
+document.getElementById('closeModal').addEventListener('click', fecharModal);
+document.getElementById('btnCancel').addEventListener('click', fecharModal);
+document.getElementById('pesquisa').addEventListener('input', renderizar);
+document.getElementById('formVenda').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('nome').value.trim();
+    const pacote = document.getElementById('pacote').value.trim();
+    const preco = document.getElementById('preco').value;
+    const iban = document.getElementById('iban').value.trim();
+
+    if (!nome || !pacote || !preco) return alert('Preencha os campos obrigatórios.');
+
+    const dados = {
+        nome,
+        pacote,
+        preco: parseFloat(preco).toFixed(2),
+        iban,
+        estado: editIndex >= 0 ? vendas[editIndex].estado : 'Pendente',
+        data: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (editIndex >= 0) {
+        await vendasRef.doc(vendas[editIndex].id).update(dados);
+    } else {
+        await vendasRef.add(dados);
+    }
+    fecharModal();
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalVenda')) fecharModal();
+});
+
+escutarMudancas();
+</script>
 </body>
 </html>

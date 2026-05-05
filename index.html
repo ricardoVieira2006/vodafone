@@ -3,56 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Vendas Vodafone</title>
+    <title>Vendas Vodafone - Organizador</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; }
-        .container { max-width: 1200px; margin: auto; padding: 20px; }
-        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; padding: 15px; }
+        .container { max-width: 1100px; margin: auto; }
+        header { background: #e60000; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         header h1 { font-size: 1.5rem; }
-        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .btn-warning { background: #ffc107; color: #333; }
-        .search-section { margin-bottom: 20px; }
-        #searchInput { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        #searchInput:focus { border-color: #e60000; outline: none; }
-        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .btn:hover { background: #ffe6e6; }
+        .btn-reset { background: #333; color: white; }
+        .search-box { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
+        .table-wrapper { background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 750px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.9rem; }
-        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
-        .estado-pendente { background: #fff3cd; color: #856404; border-color: #ffc107; }
-        .estado-vendido { background: #d4edda; color: #155724; border-color: #28a745; }
-        .estado-recusado { background: #f8d7da; color: #721c24; border-color: #dc3545; }
-        .photo-thumbs { display: flex; gap: 5px; flex-wrap: wrap; }
-        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 4px; }
+        th { background: #f9f9f9; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #555; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+        .badge-pendente { background: #fff3cd; color: #856404; }
+        .badge-vendido { background: #d4edda; color: #155724; }
+        .badge-recusado { background: #f8d7da; color: #721c24; }
+        .photo-thumbs { display: flex; gap: 6px; flex-wrap: wrap; }
+        .photo-thumbs img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 2px solid #ddd; cursor: pointer; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px; }
         .edit-btn { color: #007bff; }
         .delete-btn { color: #dc3545; }
+
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative; }
-        .close { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: #999; }
-        .close:hover { color: #333; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        input:focus, textarea:focus { border-color: #e60000; outline: none; }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 480px; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: #888; }
+        .modal-close:hover { color: #333; }
+        label { font-weight: 600; display: block; margin: 12px 0 4px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
         textarea { height: 80px; resize: vertical; }
-        .form-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .form-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-cancel { background: #6c757d; color: white; }
-        .diagnostico { background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .form-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-save { background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; cursor: pointer; }
+
+        .aviso { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .empty-msg { text-align: center; padding: 30px; color: #888; }
+
         @media (max-width: 768px) {
             table { min-width: 100%; }
             thead { display: none; }
-            tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; padding: 15px; background: white; }
-            td { display: block; text-align: right; padding: 8px 0; border: none; position: relative; }
-            td::before { content: attr(data-label); float: left; font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.8rem; }
+            tr { display: block; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; padding: 12px; background: white; }
+            td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; }
+            td::before { content: attr(data-label); font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.75rem; }
             .photo-thumbs { justify-content: flex-end; }
-            tfoot tr { display: flex; justify-content: space-between; align-items: center; }
-            tfoot td { display: block; padding: 10px; }
-            tfoot td::before { content: none; }
-            .modal-content { width: 95%; margin: auto; }
         }
     </style>
 </head>
@@ -60,20 +58,18 @@
     <div class="container">
         <header>
             <h1>📊 Vendas Vodafone</h1>
-            <div>
-                <button class="btn" id="addBtn">+ Nova Proposta</button>
-                <button class="btn btn-warning" id="testStorageBtn">🧪 Testar Armazenamento</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn" id="btnAdd">+ Nova proposta</button>
+                <button class="btn btn-reset" id="btnReset">🗑️ Limpar tudo</button>
             </div>
         </header>
 
-        <div id="diagnostico" class="diagnostico"></div>
+        <div id="aviso" class="aviso"></div>
 
-        <div class="search-section">
-            <input type="text" id="searchInput" placeholder="🔍 Buscar cliente...">
-        </div>
+        <input type="text" class="search-box" id="pesquisa" placeholder="🔍 Procurar cliente...">
 
-        <div class="table-container">
-            <table id="salesTable">
+        <div class="table-wrapper">
+            <table>
                 <thead>
                     <tr>
                         <th>Cliente</th>
@@ -83,11 +79,11 @@
                         <th>IBAN</th>
                         <th>Fotos</th>
                         <th>Estado</th>
-                        <th></th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody id="salesBody"></tbody>
-                <tfoot id="summaryRow" style="display:none;">
+                <tbody id="tableBody"></tbody>
+                <tfoot id="footerRow" style="display:none;">
                     <tr>
                         <td colspan="6" style="text-align:right;">
                             <span style="margin-right:20px;">🔵 Total geral: <strong id="totalGeral">0.00 €</strong></span>
@@ -101,28 +97,28 @@
     </div>
 
     <!-- Modal -->
-    <div id="modal" class="modal">
+    <div id="modalVenda" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalTitle">Nova Proposta</h2>
-            <form id="salesForm">
-                <label>Nome do Cliente:</label>
-                <input type="text" id="clientName" required autocomplete="off">
-                <label>Pacote/Descrição:</label>
-                <textarea id="packageDesc" required></textarea>
-                <label>Preço (€):</label>
-                <input type="number" id="price" step="0.01" required>
-                <label>IBAN:</label>
+            <span class="modal-close" id="closeModal">&times;</span>
+            <h2 id="modalTitulo">Nova Proposta</h2>
+            <form id="formVenda">
+                <label>Nome do cliente</label>
+                <input type="text" id="nome" required autocomplete="off">
+                <label>Pacote / descrição</label>
+                <textarea id="pacote" required></textarea>
+                <label>Preço (€)</label>
+                <input type="number" id="preco" step="0.01" required>
+                <label>IBAN</label>
                 <input type="text" id="iban" required>
-                <label>Foto Cartão Cidadão:</label>
-                <input type="file" id="idPhoto" accept="image/*">
-                <img id="idPhotoPreview" style="max-width:150px; display:none; margin-top:5px; border-radius:8px;">
-                <label>Fatura NOS:</label>
-                <input type="file" id="nosBill" accept="image/*">
-                <img id="nosBillPreview" style="max-width:150px; display:none; margin-top:5px; border-radius:8px;">
-                <div class="form-actions">
-                    <button type="submit" class="btn-success">Guardar</button>
-                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                <label>Foto Cartão Cidadão</label>
+                <input type="file" id="fotoCC" accept="image/*">
+                <img id="previewCC" style="max-width:120px; display:none; margin-top:5px; border-radius:8px;">
+                <label>Fatura NOS</label>
+                <input type="file" id="faturaNOS" accept="image/*">
+                <img id="previewFatura" style="max-width:120px; display:none; margin-top:5px; border-radius:8px;">
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" id="btnCancel">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -130,113 +126,127 @@
 
     <script>
         (function() {
-            // ---------- Estado ----------
-            let sales = [];
-            const STORAGE_KEY = 'vodafone_sales_data';
+            // ---------- BASE DE DADOS LOCAL ----------
+            const STORAGE_KEY = 'vodafone_vendas';
+            let vendas = [];
+            let editIndex = -1;
 
-            const addBtn = document.getElementById('addBtn');
-            const searchInput = document.getElementById('searchInput');
-            const salesBody = document.getElementById('salesBody');
-            const summaryRow = document.getElementById('summaryRow');
-            const totalGeral = document.getElementById('totalGeral');
-            const totalVendido = document.getElementById('totalVendido');
-            const modal = document.getElementById('modal');
-            const salesForm = document.getElementById('salesForm');
-            const closeBtn = document.querySelector('.close');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const modalTitle = document.getElementById('modalTitle');
-            const testStorageBtn = document.getElementById('testStorageBtn');
-            const diagnosticoDiv = document.getElementById('diagnostico');
+            // Elementos do DOM
+            const btnAdd = document.getElementById('btnAdd');
+            const btnReset = document.getElementById('btnReset');
+            const pesquisa = document.getElementById('pesquisa');
+            const tableBody = document.getElementById('tableBody');
+            const footerRow = document.getElementById('footerRow');
+            const totalGeralSpan = document.getElementById('totalGeral');
+            const totalVendidoSpan = document.getElementById('totalVendido');
+            const avisoDiv = document.getElementById('aviso');
+            const modal = document.getElementById('modalVenda');
+            const closeModal = document.getElementById('closeModal');
+            const btnCancel = document.getElementById('btnCancel');
+            const modalTitulo = document.getElementById('modalTitulo');
+            const formVenda = document.getElementById('formVenda');
+            const inputNome = document.getElementById('nome');
+            const inputPacote = document.getElementById('pacote');
+            const inputPreco = document.getElementById('preco');
+            const inputIban = document.getElementById('iban');
+            const inputFotoCC = document.getElementById('fotoCC');
+            const inputFaturaNOS = document.getElementById('faturaNOS');
+            const previewCC = document.getElementById('previewCC');
+            const previewFatura = document.getElementById('previewFatura');
 
-            const clientName = document.getElementById('clientName');
-            const packageDesc = document.getElementById('packageDesc');
-            const price = document.getElementById('price');
-            const iban = document.getElementById('iban');
-            const idPhotoInput = document.getElementById('idPhoto');
-            const nosBillInput = document.getElementById('nosBill');
-            const idPhotoPreview = document.getElementById('idPhotoPreview');
-            const nosBillPreview = document.getElementById('nosBillPreview');
-
-            let currentEditIndex = -1;
-
-            // ---------- Persistência ----------
-            function loadData() {
-                try {
-                    const data = localStorage.getItem(STORAGE_KEY);
-                    if (data) {
-                        sales = JSON.parse(data);
-                        sales.forEach(s => { if (!s.estado) s.estado = 'Pendente'; });
-                    }
-                } catch (e) {
-                    sales = [];
-                    diagnosticoDiv.style.display = 'block';
-                    diagnosticoDiv.innerHTML = '⚠️ Dados corrompidos. A lista foi limpa.';
-                }
-            }
-
-            function saveData() {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
-                    diagnosticoDiv.style.display = 'none';
-                } catch (e) {
-                    diagnosticoDiv.style.display = 'block';
-                    diagnosticoDiv.innerHTML = '❌ <strong>Armazenamento cheio!</strong> Remova vendas antigas ou fotos.';
-                    alert('Armazenamento cheio! Remova vendas antigas ou fotos.');
-                }
-            }
-
-            function calcularComissao(preco) {
+            // ---------- UTILITÁRIOS ----------
+            function calcComissao(preco) {
                 return (parseFloat(preco) + 5) * 2;
             }
 
-            // ---------- Render da tabela (DOM puro) ----------
-            function renderTable() {
-                salesBody.innerHTML = '';
-                const termo = searchInput.value.toLowerCase().trim();
-                const filtradas = termo ? sales.filter(v => v.clientName.toLowerCase().includes(termo)) : sales;
+            function mostrarAviso(texto, tipo) {
+                avisoDiv.style.display = 'block';
+                avisoDiv.textContent = texto;
+                avisoDiv.style.background = tipo === 'erro' ? '#f8d7da' : '#fff3cd';
+            }
+
+            function esconderAviso() {
+                avisoDiv.style.display = 'none';
+            }
+
+            // ---------- PERSISTÊNCIA ----------
+            function carregarDados() {
+                try {
+                    const dados = localStorage.getItem(STORAGE_KEY);
+                    if (dados) {
+                        vendas = JSON.parse(dados);
+                        // garantir estado padrão
+                        vendas.forEach(v => { if (!v.estado) v.estado = 'Pendente'; });
+                    } else {
+                        vendas = [];
+                    }
+                    esconderAviso();
+                } catch (e) {
+                    vendas = [];
+                    mostrarAviso('Erro ao carregar dados. A lista foi limpa.', 'erro');
+                }
+            }
+
+            function salvarDados() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(vendas));
+                    esconderAviso();
+                    return true;
+                } catch (e) {
+                    mostrarAviso('❌ Armazenamento CHEIO! Remova fotos ou vendas antigas.', 'erro');
+                    return false;
+                }
+            }
+
+            // ---------- RENDER TABELA ----------
+            function renderizar() {
+                const termo = pesquisa.value.toLowerCase().trim();
+                const filtradas = termo ? vendas.filter(v => v.nome.toLowerCase().includes(termo)) : vendas;
+
+                tableBody.innerHTML = '';
 
                 if (filtradas.length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="8" style="text-align:center; padding:30px;">Nenhuma proposta encontrada.</td>';
-                    salesBody.appendChild(tr);
+                    tr.innerHTML = '<td colspan="8" class="empty-msg">Nenhuma proposta encontrada.</td>';
+                    tableBody.appendChild(tr);
                 } else {
                     filtradas.forEach(venda => {
-                        const idxGlobal = sales.indexOf(venda);
-                        const comissao = calcularComissao(venda.price);
+                        const idx = vendas.indexOf(venda);
+                        const comissao = calcComissao(venda.preco);
                         const tr = document.createElement('tr');
 
-                        function appendCell(label, text, isHTML = false) {
+                        // Colunas
+                        const cols = [
+                            { label: 'Cliente', valor: venda.nome },
+                            { label: 'Pacote', valor: venda.pacote },
+                            { label: 'Preço', valor: '€' + parseFloat(venda.preco).toFixed(2) },
+                            { label: 'Comissão', valor: '<strong>€' + comissao.toFixed(2) + '</strong>', html: true },
+                            { label: 'IBAN', valor: venda.iban.slice(0,4) + '...' + venda.iban.slice(-4) }
+                        ];
+
+                        cols.forEach(col => {
                             const td = document.createElement('td');
-                            td.setAttribute('data-label', label);
-                            if (isHTML) td.innerHTML = text;
-                            else td.textContent = text;
-                            return td;
-                        }
-
-                        tr.appendChild(appendCell('Cliente', venda.clientName));
-                        tr.appendChild(appendCell('Pacote', venda.packageDesc));
-                        tr.appendChild(appendCell('Preço', '€' + parseFloat(venda.price).toFixed(2)));
-                        tr.appendChild(appendCell('Comissão', '<strong>€' + comissao.toFixed(2) + '</strong>', true));
-
-                        // IBAN mascarado
-                        const tdIban = appendCell('IBAN', venda.iban.slice(0,4) + '...' + venda.iban.slice(-4));
-                        tr.appendChild(tdIban);
+                            td.setAttribute('data-label', col.label);
+                            if (col.html) td.innerHTML = col.valor;
+                            else td.textContent = col.valor;
+                            tr.appendChild(td);
+                        });
 
                         // Fotos
                         const tdFotos = document.createElement('td');
                         tdFotos.setAttribute('data-label', 'Fotos');
                         const divFotos = document.createElement('div');
                         divFotos.className = 'photo-thumbs';
-                        if (venda.idPhoto) {
+                        if (venda.fotoCC) {
                             const img = document.createElement('img');
-                            img.src = venda.idPhoto;
-                            img.addEventListener('click', () => abrirImagem(venda.idPhoto));
+                            img.src = venda.fotoCC;
+                            img.addEventListener('click', () => ampliarImagem(venda.fotoCC));
                             divFotos.appendChild(img);
                         }
-                        if (venda.nosBill) {
+                        if (venda.faturaNOS) {
                             const img = document.createElement('img');
-                            img.src = venda.nosBill;
-                            img.addEventListener('click', () => abrirImagem(venda.nosBill));
+                            img.src = venda.faturaNOS;
+                            img.addEventListener('click', () => ampliarImagem(venda.faturaNOS));
                             divFotos.appendChild(img);
                         }
                         tdFotos.appendChild(divFotos);
@@ -245,27 +255,23 @@
                         // Estado
                         const tdEstado = document.createElement('td');
                         tdEstado.setAttribute('data-label', 'Estado');
-                        const select = document.createElement('select');
-                        select.className = 'estado-select';
-                        select.dataset.index = idxGlobal;
-                        ['Pendente', 'Vendido', 'Recusado'].forEach(est => {
+                        const selectEstado = document.createElement('select');
+                        selectEstado.className = 'badge';
+                        const estados = ['Pendente', 'Vendido', 'Recusado'];
+                        estados.forEach(est => {
                             const opt = document.createElement('option');
                             opt.value = est;
-                            opt.textContent = est === 'Pendente' ? '⏳ Pendente' : (est === 'Vendido' ? '✅ Vendido' : '❌ Recusado');
+                            opt.textContent = est === 'Pendente' ? '⏳ Pendente' : est === 'Vendido' ? '✅ Vendido' : '❌ Recusado';
                             if (venda.estado === est) opt.selected = true;
-                            select.appendChild(opt);
+                            selectEstado.appendChild(opt);
                         });
-                        // Define a classe correta
-                        select.classList.add(
-                            venda.estado === 'Vendido' ? 'estado-vendido' :
-                            venda.estado === 'Recusado' ? 'estado-recusado' : 'estado-pendente'
-                        );
-                        select.addEventListener('change', function() {
-                            sales[this.dataset.index].estado = this.value;
-                            saveData();
-                            renderTable(); // atualiza cores e totais
+                        selectEstado.classList.add('badge-' + venda.estado.toLowerCase());
+                        selectEstado.addEventListener('change', function() {
+                            vendas[idx].estado = this.value;
+                            salvarDados();
+                            renderizar();
                         });
-                        tdEstado.appendChild(select);
+                        tdEstado.appendChild(selectEstado);
                         tr.appendChild(tdEstado);
 
                         // Ações
@@ -274,74 +280,75 @@
                         const btnEdit = document.createElement('button');
                         btnEdit.textContent = '✏️';
                         btnEdit.className = 'action-btn edit-btn';
-                        btnEdit.addEventListener('click', () => editarVenda(idxGlobal));
+                        btnEdit.addEventListener('click', () => abrirModal(idx));
                         const btnDel = document.createElement('button');
                         btnDel.textContent = '🗑️';
                         btnDel.className = 'action-btn delete-btn';
-                        btnDel.addEventListener('click', () => eliminarVenda(idxGlobal));
+                        btnDel.addEventListener('click', () => {
+                            if (confirm('Eliminar esta proposta?')) {
+                                vendas.splice(idx, 1);
+                                salvarDados();
+                                renderizar();
+                            }
+                        });
                         tdAcoes.appendChild(btnEdit);
                         tdAcoes.appendChild(btnDel);
                         tr.appendChild(tdAcoes);
 
-                        salesBody.appendChild(tr);
+                        tableBody.appendChild(tr);
                     });
                 }
 
                 // Totais
-                const totalG = sales.reduce((s, v) => s + calcularComissao(v.price), 0);
-                const totalV = sales.filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcularComissao(v.price), 0);
-                totalGeral.textContent = totalG.toFixed(2) + ' €';
-                totalVendido.textContent = totalV.toFixed(2) + ' €';
-                summaryRow.style.display = sales.length ? 'table-row' : 'none';
+                const totalG = vendas.reduce((acc, v) => acc + calcComissao(v.preco), 0);
+                const totalV = vendas.filter(v => v.estado === 'Vendido').reduce((acc, v) => acc + calcComissao(v.preco), 0);
+                totalGeralSpan.textContent = totalG.toFixed(2) + ' €';
+                totalVendidoSpan.textContent = totalV.toFixed(2) + ' €';
+                footerRow.style.display = vendas.length ? 'table-row' : 'none';
             }
 
-            // ---------- Modal ----------
-            function abrirModal(indice) {
-                currentEditIndex = indice;
-                modal.classList.add('active');
-                modalTitle.textContent = indice === -1 ? 'Nova Proposta' : 'Editar Proposta';
-                salesForm.reset();
-                idPhotoPreview.style.display = 'none';
-                nosBillPreview.style.display = 'none';
-                if (indice > -1) {
-                    const v = sales[indice];
-                    clientName.value = v.clientName;
-                    packageDesc.value = v.packageDesc;
-                    price.value = v.price;
-                    iban.value = v.iban;
-                    if (v.idPhoto) { idPhotoPreview.src = v.idPhoto; idPhotoPreview.style.display = 'block'; }
-                    if (v.nosBill) { nosBillPreview.src = v.nosBill; nosBillPreview.style.display = 'block'; }
+            // ---------- MODAL ----------
+            function abrirModal(index = -1) {
+                editIndex = index;
+                modalTitulo.textContent = index === -1 ? 'Nova Proposta' : 'Editar Proposta';
+                formVenda.reset();
+                previewCC.style.display = 'none';
+                previewFatura.style.display = 'none';
+                if (index >= 0) {
+                    const v = vendas[index];
+                    inputNome.value = v.nome;
+                    inputPacote.value = v.pacote;
+                    inputPreco.value = v.preco;
+                    inputIban.value = v.iban;
+                    if (v.fotoCC) { previewCC.src = v.fotoCC; previewCC.style.display = 'block'; }
+                    if (v.faturaNOS) { previewFatura.src = v.faturaNOS; previewFatura.style.display = 'block'; }
                 }
-                clientName.focus();
+                modal.classList.add('active');
+                inputNome.focus();
             }
 
             function fecharModal() {
                 modal.classList.remove('active');
-                currentEditIndex = -1;
+                editIndex = -1;
             }
 
-            // ---------- Compressão de imagem ----------
-            function comprimirImagem(file, previewImg) {
+            // Compressão de imagem (máx. 400px largura, JPEG 70%)
+            function comprimirImagem(file, previewEl) {
                 return new Promise(resolve => {
                     if (!file) return resolve(null);
                     const reader = new FileReader();
                     reader.onload = e => {
                         const img = new Image();
                         img.onload = () => {
-                            const MAX_WIDTH = 400;
-                            let width = img.width, height = img.height;
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
+                            const MAX_W = 400;
+                            let w = img.width, h = img.height;
+                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
                             const canvas = document.createElement('canvas');
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, width, height);
+                            canvas.width = w; canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                             const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                            previewImg.src = dataUrl;
-                            previewImg.style.display = 'block';
+                            previewEl.src = dataUrl;
+                            previewEl.style.display = 'block';
                             resolve(dataUrl);
                         };
                         img.src = e.target.result;
@@ -350,22 +357,88 @@
                 });
             }
 
-            async function handleIdPhoto(e) {
-                e.target._dataUrl = await comprimirImagem(e.target.files[0], idPhotoPreview);
-            }
-            async function handleNosBill(e) {
-                e.target._dataUrl = await comprimirImagem(e.target.files[0], nosBillPreview);
-            }
+            inputFotoCC.addEventListener('change', async function(e) {
+                this._dataUrl = await comprimirImagem(e.target.files[0], previewCC);
+            });
+            inputFaturaNOS.addEventListener('change', async function(e) {
+                this._dataUrl = await comprimirImagem(e.target.files[0], previewFatura);
+            });
 
-            // ---------- Submeter ----------
-            async function handleSubmit(e) {
+            // Submeter formulário
+            formVenda.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const idPhoto = idPhotoInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].idPhoto : null);
-                const nosBill = nosBillInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].nosBill : null);
+                const nome = inputNome.value.trim();
+                const pacote = inputPacote.value.trim();
+                const preco = inputPreco.value;
+                const iban = inputIban.value.trim();
+                if (!nome || !pacote || !preco || !iban) {
+                    alert('Preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                const fotoCC = inputFotoCC._dataUrl || (editIndex >= 0 ? vendas[editIndex].fotoCC : null);
+                const faturaNOS = inputFaturaNOS._dataUrl || (editIndex >= 0 ? vendas[editIndex].faturaNOS : null);
 
                 const nova = {
-                    clientName: clientName.value.trim(),
-                    packageDesc: packageDesc.value.trim(),
-                    price: price.value,
-                    iban: iban.value.trim(),
-                    idPhoto: idPhoto ||
+                    nome, pacote, preco, iban,
+                    fotoCC: fotoCC || null,
+                    faturaNOS: faturaNOS || null,
+                    estado: editIndex >= 0 ? vendas[editIndex].estado : 'Pendente'
+                };
+
+                if (editIndex === -1) {
+                    vendas.unshift(nova);
+                } else {
+                    vendas[editIndex] = nova;
+                }
+
+                if (salvarDados()) {
+                    renderizar();
+                    fecharModal();
+                    // limpar dados temporários
+                    inputFotoCC._dataUrl = undefined;
+                    inputFaturaNOS._dataUrl = undefined;
+                }
+            });
+
+            function ampliarImagem(src) {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000;';
+                overlay.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer;">&times;</span>
+                                     <img src="${src}" style="max-width:90%; max-height:90%;">`;
+                overlay.querySelector('span').addEventListener('click', () => overlay.remove());
+                document.body.appendChild(overlay);
+            }
+
+            // ---------- EVENTOS ----------
+            btnAdd.addEventListener('click', () => abrirModal(-1));
+            btnReset.addEventListener('click', () => {
+                if (confirm('⚠️ Apagar TODAS as vendas? Esta ação não pode ser desfeita.')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    vendas = [];
+                    renderizar();
+                }
+            });
+            closeModal.addEventListener('click', fecharModal);
+            btnCancel.addEventListener('click', fecharModal);
+            window.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
+            pesquisa.addEventListener('input', renderizar);
+
+            // ---------- ARRANQUE ----------
+            if (!localStorage) {
+                mostrarAviso('O seu navegador não suporta armazenamento local. Use outro browser.', 'erro');
+            } else {
+                carregarDados();
+                renderizar();
+                // teste silencioso de escrita
+                try {
+                    localStorage.setItem('__t', '1');
+                    localStorage.removeItem('__t');
+                } catch (e) {
+                    mostrarAviso('Armazenamento bloqueado! Verifique as definições do navegador.', 'erro');
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

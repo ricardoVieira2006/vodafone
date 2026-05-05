@@ -5,241 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizador de Vendas Vodafone Fibra</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            background: linear-gradient(135deg, #e60000, #ff4444);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(230,0,0,0.3);
-        }
-        header h1 {
-            font-size: 1.8rem;
-        }
-        #addBtn {
-            background: #fff;
-            color: #e60000;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        #addBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        }
-        .search-section {
-            margin-bottom: 20px;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        #searchInput:focus {
-            border-color: #e60000;
-        }
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #555;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
-        tr:hover {
-            background: #f8f9fa;
-        }
-        tfoot td {
-            background: #f8f9fa;
-            font-weight: bold;
-        }
-        .photo-thumbs {
-            display: flex;
-            gap: 5px;
-        }
-        .photo-thumbs img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 2px solid #ddd;
-            cursor: pointer;
-        }
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.2s;
-            font-size: 1.2rem;
-        }
-        .edit-btn {
-            color: #007bff;
-        }
-        .edit-btn:hover {
-            background: #007bff20;
-        }
-        .delete-btn {
-            color: #dc3545;
-        }
-        .delete-btn:hover {
-            background: #dc354520;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-        .modal-content {
-            background: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideIn 0.3s;
-        }
-        .close {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #999;
-        }
-        .close:hover {
-            color: #333;
-        }
-        #modalTitle {
-            margin-bottom: 20px;
-            color: #e60000;
-        }
-        label {
-            display: block;
-            margin: 15px 0 5px;
-            font-weight: 600;
-            color: #555;
-        }
-        input[type="text"], input[type="number"], input[type="file"], textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #e60000;
-        }
-        textarea {
-            height: 80px;
-            resize: vertical;
-        }
-        .photo-preview {
-            max-width: 200px;
-            max-height: 150px;
-            margin-top: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-        button[type="submit"], #cancelBtn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        button[type="submit"] {
-            background: #28a745;
-            color: white;
-        }
-        button[type="submit"]:hover {
-            background: #218838;
-            transform: translateY(-1px);
-        }
-        #cancelBtn {
-            background: #6c757d;
-            color: white;
-        }
-        #cancelBtn:hover {
-            background: #545b62;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-            font-style: italic;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(230,0,0,0.3); }
+        header h1 { font-size: 1.8rem; }
+        #addBtn { background: #fff; color: #e60000; border: none; padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        #addBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .search-section { margin-bottom: 20px; }
+        #searchInput { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: border-color 0.3s; }
+        #searchInput:focus { border-color: #e60000; }
+        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px; }
+        tr:hover { background: #f8f9fa; }
+        tfoot td { background: #f8f9fa; font-weight: bold; }
+        .photo-thumbs { display: flex; gap: 5px; }
+        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 4px; transition: background 0.2s; font-size: 1.2rem; }
+        .edit-btn { color: #007bff; }
+        .edit-btn:hover { background: #007bff20; }
+        .delete-btn { color: #dc3545; }
+        .delete-btn:hover { background: #dc354520; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideIn 0.3s; }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 2rem; cursor: pointer; color: #999; }
+        .close:hover { color: #333; }
+        #modalTitle { margin-bottom: 20px; color: #e60000; }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; color: #555; }
+        input[type="text"], input[type="number"], input[type="file"], textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        input:focus, textarea:focus { outline: none; border-color: #e60000; }
+        textarea { height: 80px; resize: vertical; }
+        .photo-preview { max-width: 200px; max-height: 150px; margin-top: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .form-actions { display: flex; gap: 10px; margin-top: 25px; }
+        button[type="submit"], #cancelBtn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        button[type="submit"] { background: #28a745; color: white; }
+        button[type="submit"]:hover { background: #218838; transform: translateY(-1px); }
+        #cancelBtn { background: #6c757d; color: white; }
+        #cancelBtn:hover { background: #545b62; }
+        .empty-state { text-align: center; padding: 40px; color: #888; font-style: italic; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @media (max-width: 768px) {
             .container { padding: 10px; }
             header { flex-direction: column; gap: 15px; text-align: center; }
@@ -255,11 +62,9 @@
             <h1>Organizador de Propostas/Vendas Vodafone</h1>
             <button id="addBtn">+ Adicionar Nova Proposta</button>
         </header>
-
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="Buscar por nome do cliente...">
         </div>
-
         <div class="table-container">
             <table id="salesTable">
                 <thead>
@@ -291,24 +96,18 @@
                 <form id="salesForm">
                     <label for="clientName">Nome do Cliente:</label>
                     <input type="text" id="clientName" required>
-
                     <label for="packageDesc">Pacote/Descrição:</label>
                     <textarea id="packageDesc" required></textarea>
-
                     <label for="price">Preço (€):</label>
                     <input type="number" id="price" step="0.01" required>
-
                     <label for="iban">IBAN da Conta:</label>
                     <input type="text" id="iban" required>
-
                     <label>Foto Cartão Cidadão:</label>
                     <input type="file" id="idPhoto" accept="image/*">
                     <img id="idPhotoPreview" class="photo-preview" style="display:none;">
-
                     <label>Fatura NOS:</label>
                     <input type="file" id="nosBill" accept="image/*">
                     <img id="nosBillPreview" class="photo-preview" style="display:none;">
-
                     <div class="form-actions">
                         <button type="submit">Guardar</button>
                         <button type="button" id="cancelBtn">Cancelar</button>
@@ -320,12 +119,10 @@
 
     <script>
         (function() {
-            // ---------- ESTADO ----------
             let sales = [];
             let currentEditIndex = -1;
             const STORAGE_KEY = 'vodafone_sales_data';
 
-            // ---------- ELEMENTOS DOM ----------
             const addBtn = document.getElementById('addBtn');
             const searchInput = document.getElementById('searchInput');
             const salesBody = document.getElementById('salesBody');
@@ -346,16 +143,11 @@
             const idPhotoPreview = document.getElementById('idPhotoPreview');
             const nosBillPreview = document.getElementById('nosBillPreview');
 
-            // ---------- INICIALIZAÇÃO ----------
+            // --- Persistência ---
             function loadData() {
                 const data = localStorage.getItem(STORAGE_KEY);
                 if (data) {
-                    try {
-                        sales = JSON.parse(data);
-                    } catch (e) {
-                        console.error('Dados corrompidos, a limpar...', e);
-                        sales = [];
-                    }
+                    try { sales = JSON.parse(data); } catch (e) { sales = []; }
                 }
             }
 
@@ -363,39 +155,25 @@
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
                 } catch (e) {
-                    alert('❌ Erro ao guardar! O armazenamento está cheio.\n' +
-                          'Experimente eliminar algumas vendas antigas ou fotos.');
-                    console.error(e);
+                    alert('❌ Armazenamento cheio. Remova algumas vendas ou fotos.');
                 }
             }
 
-            //  Fórmula corrigida: (preço + 5) * 2
-            function calcularComissao(preco) {
-                return (parseFloat(preco) + 5) * 2;
-            }
-
-            function atualizarSumario() {
-                const total = sales.reduce((soma, v) => soma + calcularComissao(v.price), 0);
-                totalComissao.textContent = total.toFixed(2) + ' €';
-                summaryRow.style.display = sales.length ? 'table-row' : 'none';
-            }
+            // Fórmula: (preço + 5) * 2
+            function calcularComissao(preco) { return (parseFloat(preco) + 5) * 2; }
 
             function escapeHtml(texto) {
-                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-                return String(texto).replace(/[&<>"']/g, m => map[m]);
+                return String(texto).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
             }
 
-            // ---------- RENDER TABELA ----------
+            // --- Render da tabela (SEM onclick inline) ---
             function renderTable() {
                 const termo = searchInput.value.toLowerCase().trim();
-                const filtradas = termo
-                    ? sales.filter(v => v.clientName.toLowerCase().includes(termo))
-                    : sales;
-
+                const filtradas = termo ? sales.filter(v => v.clientName.toLowerCase().includes(termo)) : sales;
                 salesBody.innerHTML = '';
 
                 if (filtradas.length === 0) {
-                    salesBody.innerHTML = `<tr><td colspan="7" class="empty-state">Nenhuma proposta encontrada.</td></tr>`;
+                    salesBody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma proposta encontrada.</td></tr>';
                 } else {
                     filtradas.forEach(venda => {
                         const idxGlobal = sales.indexOf(venda);
@@ -407,21 +185,31 @@
                             <td>€${parseFloat(venda.price).toFixed(2)}</td>
                             <td><strong>€${comissao.toFixed(2)}</strong></td>
                             <td>${escapeHtml(venda.iban.slice(0,4) + '...' + venda.iban.slice(-4))}</td>
-                            <td>
-                                <div class="photo-thumbs">
-                                    ${venda.idPhoto ? `<img src="${venda.idPhoto}" alt="CC" onclick="window.abrirImagem('${venda.idPhoto}')">` : ''}
-                                    ${venda.nosBill ? `<img src="${venda.nosBill}" alt="Fatura" onclick="window.abrirImagem('${venda.nosBill}')">` : ''}
-                                </div>
-                            </td>
+                            <td><div class="photo-thumbs"></div></td>
                             <td>
                                 <button class="action-btn edit-btn" data-index="${idxGlobal}" title="Editar">✏️</button>
                                 <button class="action-btn delete-btn" data-index="${idxGlobal}" title="Eliminar">🗑️</button>
                             </td>
                         `;
+                        // Adiciona imagens com event listeners
+                        const container = tr.querySelector('.photo-thumbs');
+                        if (venda.idPhoto) {
+                            const img = document.createElement('img');
+                            img.src = venda.idPhoto;
+                            img.alt = 'CC';
+                            img.addEventListener('click', () => abrirImagem(venda.idPhoto));
+                            container.appendChild(img);
+                        }
+                        if (venda.nosBill) {
+                            const img = document.createElement('img');
+                            img.src = venda.nosBill;
+                            img.alt = 'Fatura';
+                            img.addEventListener('click', () => abrirImagem(venda.nosBill));
+                            container.appendChild(img);
+                        }
                         salesBody.appendChild(tr);
                     });
 
-                    // Event listeners para botões
                     document.querySelectorAll('.edit-btn').forEach(btn => {
                         btn.addEventListener('click', () => editarVenda(parseInt(btn.dataset.index)));
                     });
@@ -430,10 +218,13 @@
                     });
                 }
 
-                atualizarSumario();
+                // Sumário
+                const total = sales.reduce((soma, v) => soma + calcularComissao(v.price), 0);
+                totalComissao.textContent = total.toFixed(2) + ' €';
+                summaryRow.style.display = sales.length ? 'table-row' : 'none';
             }
 
-            // ---------- MODAL ----------
+            // --- Modal ---
             function abrirModal(indice) {
                 currentEditIndex = indice;
                 modal.style.display = 'block';
@@ -448,42 +239,27 @@
                     packageDesc.value = v.packageDesc;
                     price.value = v.price;
                     iban.value = v.iban;
-                    if (v.idPhoto) {
-                        idPhotoPreview.src = v.idPhoto;
-                        idPhotoPreview.style.display = 'block';
-                    }
-                    if (v.nosBill) {
-                        nosBillPreview.src = v.nosBill;
-                        nosBillPreview.style.display = 'block';
-                    }
+                    if (v.idPhoto) { idPhotoPreview.src = v.idPhoto; idPhotoPreview.style.display = 'block'; }
+                    if (v.nosBill) { nosBillPreview.src = v.nosBill; nosBillPreview.style.display = 'block'; }
                 }
-
                 clientName.focus();
             }
 
-            function fecharModal() {
-                modal.style.display = 'none';
-                currentEditIndex = -1;
-            }
+            function fecharModal() { modal.style.display = 'none'; currentEditIndex = -1; }
 
-            // ---------- COMPRESSÃO DE IMAGEM ----------
+            // --- Compressão de imagens ---
             function comprimirImagem(file, previewImg) {
-                return new Promise((resolve) => {
+                return new Promise(resolve => {
                     if (!file) return resolve(null);
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = e => {
                         const img = new Image();
                         img.onload = () => {
                             const MAX_WIDTH = 400;
-                            let width = img.width;
-                            let height = img.height;
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
+                            let width = img.width, height = img.height;
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                             const canvas = document.createElement('canvas');
-                            canvas.width = width;
-                            canvas.height = height;
+                            canvas.width = width; canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
                             const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
@@ -497,57 +273,65 @@
                 });
             }
 
-            async function handleIdPhoto(e) {
-                const base64 = await comprimirImagem(e.target.files[0], idPhotoPreview);
-                e.target._dataUrl = base64;
-            }
+            async function handleIdPhoto(e) { e.target._dataUrl = await comprimirImagem(e.target.files[0], idPhotoPreview); }
+            async function handleNosBill(e) { e.target._dataUrl = await comprimirImagem(e.target.files[0], nosBillPreview); }
 
-            async function handleNosBill(e) {
-                const base64 = await comprimirImagem(e.target.files[0], nosBillPreview);
-                e.target._dataUrl = base64;
-            }
-
-            // ---------- SUBMETER FORMULÁRIO ----------
+            // --- Submeter ---
             async function handleSubmit(e) {
                 e.preventDefault();
+                const idPhoto = idPhotoInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].idPhoto : null);
+                const nosBill = nosBillInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].nosBill : null);
 
-                const novaIdPhoto = idPhotoInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].idPhoto : null);
-                const novaNosBill = nosBillInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].nosBill : null);
-
-                const novaVenda = {
+                const nova = {
                     clientName: clientName.value.trim(),
                     packageDesc: packageDesc.value.trim(),
                     price: price.value,
                     iban: iban.value.trim(),
-                    idPhoto: novaIdPhoto || null,
-                    nosBill: novaNosBill || null
+                    idPhoto: idPhoto || null,
+                    nosBill: nosBill || null
                 };
 
-                if (currentEditIndex === -1) {
-                    sales.unshift(novaVenda);
-                } else {
-                    sales[currentEditIndex] = novaVenda;
-                }
+                if (currentEditIndex === -1) sales.unshift(nova);
+                else sales[currentEditIndex] = nova;
 
                 saveData();
                 renderTable();
                 fecharModal();
-
                 idPhotoInput._dataUrl = undefined;
                 nosBillInput._dataUrl = undefined;
             }
 
-            // ---------- AÇÕES DA TABELA ----------
-            function editarVenda(indice) {
-                abrirModal(indice);
+            function editarVenda(idx) { abrirModal(idx); }
+            function eliminarVenda(idx) {
+                if (confirm('Tem a certeza que quer eliminar?')) { sales.splice(idx, 1); saveData(); renderTable(); }
             }
 
-            function eliminarVenda(indice) {
-                if (confirm('Tem a certeza que quer eliminar esta proposta?')) {
-                    sales.splice(indice, 1);
-                    saveData();
-                    renderTable();
-                }
+            function abrirImagem(src) {
+                const modalImg = document.createElement('div');
+                modalImg.className = 'modal';
+                modalImg.style.display = 'flex';
+                modalImg.style.alignItems = 'center';
+                modalImg.style.justifyContent = 'center';
+                modalImg.style.background = 'rgba(0,0,0,0.9)';
+                modalImg.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer" onclick="this.parentElement.remove()">&times;</span>
+                                      <img src="${src}" style="max-width:90%; max-height:90%; object-fit:contain;">`;
+                document.body.appendChild(modalImg);
             }
 
- 
+            // Event listeners
+            addBtn.addEventListener('click', () => abrirModal(-1));
+            searchInput.addEventListener('input', renderTable);
+            closeBtn.addEventListener('click', fecharModal);
+            cancelBtn.addEventListener('click', fecharModal);
+            window.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
+            idPhotoInput.addEventListener('change', handleIdPhoto);
+            nosBillInput.addEventListener('change', handleNosBill);
+            salesForm.addEventListener('submit', handleSubmit);
+
+            // Arranque
+            loadData();
+            renderTable();
+        })();
+    </script>
+</body>
+</html>

@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vodafone Vendas Pro</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* ---------- estilos iguais aos que já tinhas (mantive os mesmos) ---------- */
+        /* mesmos estilos que já tinhas */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -48,7 +48,7 @@
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
@@ -133,7 +133,7 @@
 </div>
 
 <script>
-// Configuração do Firebase (já está com as credenciais que forneceste)
+// Configuração do Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -144,13 +144,12 @@ const firebaseConfig = {
     measurementId: "G-9MB59HCF4D"
 };
 
-// Inicializa Firebase
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const vendasRef = db.collection("vendas");
+const database = firebase.database();
+const vendasRef = database.ref("vendas");
 
-let vendas = [];
-let editIndex = -1;
+let vendas = {};
+let editKey = null;
 
 function calcComissao(preco) {
     return (parseFloat(preco) + 5) * 2;
@@ -165,7 +164,8 @@ function showError(msg) {
 
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-    const filtradas = termo ? vendas.filter(v => v.nome.toLowerCase().includes(termo)) : vendas;
+    const lista = Object.entries(vendas).map(([key, val]) => ({ key, ...val }));
+    const filtradas = termo ? lista.filter(v => v.nome.toLowerCase().includes(termo)) : lista;
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
 
@@ -181,7 +181,7 @@ function renderizar() {
                 <td data-label="Preço"><span class="price">€${parseFloat(v.preco).toFixed(2)}</span></td>
                 <td data-label="Comissão"><span class="commission">€${comissao.toFixed(2)}</span></td>
                 <td data-label="Estado">
-                    <select class="badge ${v.estado === 'Vendido' ? 'badge-vendido' : (v.estado === 'Recusado' ? 'badge-recusado' : 'badge-pendente')}" data-id="${v.id}">
+                    <select class="badge ${v.estado === 'Vendido' ? 'badge-vendido' : (v.estado === 'Recusado' ? 'badge-recusado' : 'badge-pendente')}" data-key="${v.key}">
                         <option value="Pendente" ${v.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
                         <option value="Vendido" ${v.estado === 'Vendido' ? 'selected' : ''}>✅ Vendido</option>
                         <option value="Recusado" ${v.estado === 'Recusado' ? 'selected' : ''}>❌ Recusado</option>
@@ -189,8 +189,8 @@ function renderizar() {
                 </td>
                 <td data-label="Ações">
                     <div class="actions">
-                        <button class="icon-btn edit" data-id="${v.id}">✏️</button>
-                        <button class="icon-btn delete" data-id="${v.id}">🗑️</button>
+                        <button class="icon-btn edit" data-key="${v.key}">✏️</button>
+                        <button class="icon-btn delete" data-key="${v.key}">🗑️</button>
                     </div>
                 </td>
             `;
@@ -199,45 +199,37 @@ function renderizar() {
 
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const v = vendas.find(v => v.id === id);
-                if (v) abrirModal(v);
+                const key = btn.dataset.key;
+                const v = vendas[key];
+                if (v) abrirModal(key, v);
             });
         });
         document.querySelectorAll('.icon-btn.delete').forEach(btn => {
             btn.addEventListener('click', async () => {
-                const id = btn.dataset.id;
+                const key = btn.dataset.key;
                 if (confirm('Eliminar esta proposta?')) {
-                    try {
-                        await vendasRef.doc(id).delete();
-                    } catch (e) {
-                        showError('Erro ao eliminar: ' + e.message);
-                    }
+                    await vendasRef.child(key).remove().catch(e => showError(e.message));
                 }
             });
         });
         document.querySelectorAll('.badge').forEach(select => {
             select.addEventListener('change', async function() {
-                const id = this.dataset.id;
+                const key = this.dataset.key;
                 const novoEstado = this.value;
-                try {
-                    await vendasRef.doc(id).update({ estado: novoEstado });
-                } catch (e) {
-                    showError('Erro ao atualizar estado: ' + e.message);
-                }
+                await vendasRef.child(key).update({ estado: novoEstado }).catch(e => showError(e.message));
             });
         });
     }
 
-    const totalG = vendas.reduce((s, v) => s + calcComissao(v.preco), 0);
-    const totalV = vendas.filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcComissao(v.preco), 0);
+    const totalG = Object.values(vendas).reduce((s, v) => s + calcComissao(v.preco), 0);
+    const totalV = Object.values(vendas).filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcComissao(v.preco), 0);
     document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
     document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
 }
 
-function abrirModal(venda = null) {
-    editIndex = venda ? vendas.findIndex(v => v.id === venda.id) : -1;
-    document.getElementById('modalTitle').textContent = venda ? 'Editar Proposta' : 'Nova Proposta';
+function abrirModal(key = null, venda = null) {
+    editKey = key;
+    document.getElementById('modalTitle').textContent = key ? 'Editar Proposta' : 'Nova Proposta';
     document.getElementById('nome').value = venda ? venda.nome : '';
     document.getElementById('pacote').value = venda ? venda.pacote : '';
     document.getElementById('preco').value = venda ? venda.preco : '';
@@ -247,30 +239,22 @@ function abrirModal(venda = null) {
 
 function fecharModal() {
     document.getElementById('modalVenda').classList.remove('active');
-    editIndex = -1;
+    editKey = null;
 }
 
-// Escuta em tempo real SEM ordenação (evita necessidade de índice composto)
-function escutarMudancas() {
-    vendasRef.onSnapshot(snapshot => {
-        vendas = [];
-        snapshot.forEach(doc => {
-            vendas.push({ id: doc.id, ...doc.data() });
-        });
-        renderizar();
-    }, error => {
-        showError('Erro ao carregar dados: ' + error.message + ' (Verifique se a Firestore está ativada no Console Firebase)');
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Falha de ligação – Firestore não ativada?</td></tr>';
-    });
-}
+// Escuta em tempo real
+vendasRef.on('value', snapshot => {
+    vendas = snapshot.val() || {};
+    renderizar();
+}, error => {
+    showError('Erro ao carregar dados: ' + error.message);
+    document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Falha de ligação</td></tr>';
+});
 
 document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
 document.getElementById('btnReset').addEventListener('click', async () => {
     if (confirm('⚠️ Apagar TODAS as vendas?')) {
-        const snapshot = await vendasRef.get();
-        const batch = db.batch();
-        snapshot.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
+        await vendasRef.remove().catch(e => showError(e.message));
     }
 });
 document.getElementById('closeModal').addEventListener('click', fecharModal);
@@ -290,15 +274,15 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
         pacote,
         preco: parseFloat(preco).toFixed(2),
         iban,
-        estado: editIndex >= 0 ? vendas[editIndex].estado : 'Pendente',
-        data: firebase.firestore.FieldValue.serverTimestamp()
+        estado: editKey ? vendas[editKey].estado : 'Pendente',
+        data: firebase.database.ServerValue.TIMESTAMP
     };
 
     try {
-        if (editIndex >= 0) {
-            await vendasRef.doc(vendas[editIndex].id).update(dados);
+        if (editKey) {
+            await vendasRef.child(editKey).update(dados);
         } else {
-            await vendasRef.add(dados);
+            await vendasRef.push(dados);
         }
         fecharModal();
     } catch (e) {
@@ -309,8 +293,6 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
 window.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVenda')) fecharModal();
 });
-
-escutarMudancas();
 </script>
 </body>
 </html>

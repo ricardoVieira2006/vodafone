@@ -6,36 +6,53 @@
     <title>Organizador de Vendas Vodafone</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; }
-        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #e60000, #ff4444); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         header h1 { font-size: 1.5rem; }
-        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn { background: white; color: #e60000; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-warning { background: #ffc107; color: #333; }
         .search-section { margin-bottom: 20px; }
-        #searchInput { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        .table-container { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
+        #searchInput { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        #searchInput:focus { border-color: #e60000; outline: none; }
+        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; }
-        .estado-pendente { background: #fff3cd; color: #856404; }
-        .estado-vendido { background: #d4edda; color: #155724; }
-        .estado-recusado { background: #f8d7da; color: #721c24; }
-        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.9rem; }
+        .estado-select { padding: 6px 10px; border-radius: 20px; border: 2px solid #ddd; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        .estado-pendente { background: #fff3cd; color: #856404; border-color: #ffc107; }
+        .estado-vendido { background: #d4edda; color: #155724; border-color: #28a745; }
+        .estado-recusado { background: #f8d7da; color: #721c24; border-color: #dc3545; }
+        .photo-thumbs { display: flex; gap: 5px; flex-wrap: wrap; }
+        .photo-thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 4px; }
+        .edit-btn { color: #007bff; }
+        .delete-btn { color: #dc3545; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
-        .close { float: right; font-size: 2rem; cursor: pointer; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative; }
+        .close { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: #999; }
+        .close:hover { color: #333; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        input:focus, textarea:focus { border-color: #e60000; outline: none; }
+        textarea { height: 80px; resize: vertical; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .form-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .form-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn-success { background: #28a745; color: white; }
         .btn-cancel { background: #6c757d; color: white; }
-        .diagnostico { margin: 20px 0; padding: 10px; background: #eee; border-radius: 8px; }
+        .diagnostico { background: #eee; padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; }
         @media (max-width: 768px) {
-            th, td { padding: 8px; font-size: 0.9rem; }
-            .modal-content { width: 95%; }
+            table { min-width: 100%; }
+            thead { display: none; }
+            tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; padding: 15px; background: white; }
+            td { display: block; text-align: right; padding: 8px 0; border: none; position: relative; }
+            td::before { content: attr(data-label); float: left; font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.8rem; }
+            .photo-thumbs { justify-content: flex-end; }
+            tfoot tr { display: flex; justify-content: space-between; align-items: center; }
+            tfoot td { display: block; padding: 10px; }
+            tfoot td::before { content: none; }
+            .modal-content { width: 95%; margin: auto; }
         }
     </style>
 </head>
@@ -45,15 +62,15 @@
             <h1>📊 Vendas Vodafone</h1>
             <div>
                 <button class="btn" id="addBtn">+ Nova Proposta</button>
-                <button class="btn" id="testStorageBtn" style="background:#ffc107; color:#333; margin-left:10px;">🧪 Testar Armazenamento</button>
+                <button class="btn btn-warning" id="testStorageBtn">🧪 Testar Armazenamento</button>
             </div>
         </header>
+
+        <div id="diagnostico" class="diagnostico"></div>
 
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="🔍 Buscar cliente...">
         </div>
-
-        <div id="diagnostico" class="diagnostico" style="display:none;"></div>
 
         <div class="table-container">
             <table id="salesTable">
@@ -90,7 +107,7 @@
             <h2 id="modalTitle">Nova Proposta</h2>
             <form id="salesForm">
                 <label>Nome do Cliente:</label>
-                <input type="text" id="clientName" required>
+                <input type="text" id="clientName" required autocomplete="off">
                 <label>Pacote/Descrição:</label>
                 <textarea id="packageDesc" required></textarea>
                 <label>Preço (€):</label>
@@ -99,10 +116,10 @@
                 <input type="text" id="iban" required>
                 <label>Foto Cartão Cidadão:</label>
                 <input type="file" id="idPhoto" accept="image/*">
-                <img id="idPhotoPreview" style="max-width:150px; display:none;">
+                <img id="idPhotoPreview" style="max-width:150px; display:none; margin-top:5px; border-radius:8px;">
                 <label>Fatura NOS:</label>
                 <input type="file" id="nosBill" accept="image/*">
-                <img id="nosBillPreview" style="max-width:150px; display:none;">
+                <img id="nosBillPreview" style="max-width:150px; display:none; margin-top:5px; border-radius:8px;">
                 <div class="form-actions">
                     <button type="submit" class="btn-success">Guardar</button>
                     <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
@@ -117,7 +134,6 @@
             let sales = [];
             const STORAGE_KEY = 'vodafone_sales_data';
 
-            // Elementos do DOM
             const addBtn = document.getElementById('addBtn');
             const searchInput = document.getElementById('searchInput');
             const salesBody = document.getElementById('salesBody');
@@ -149,19 +165,23 @@
                     const data = localStorage.getItem(STORAGE_KEY);
                     if (data) {
                         sales = JSON.parse(data);
-                        // garantir estado padrão
                         sales.forEach(s => { if (!s.estado) s.estado = 'Pendente'; });
                     }
                 } catch (e) {
                     sales = [];
+                    diagnosticoDiv.style.display = 'block';
+                    diagnosticoDiv.innerHTML = '⚠️ Dados corrompidos. A lista foi limpa.';
                 }
             }
 
             function saveData() {
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
+                    diagnosticoDiv.style.display = 'none';
                 } catch (e) {
-                    alert('Erro ao guardar: armazenamento cheio.');
+                    diagnosticoDiv.style.display = 'block';
+                    diagnosticoDiv.innerHTML = '❌ <strong>Armazenamento cheio!</strong> Remova vendas antigas ou fotos.';
+                    alert('Armazenamento cheio! Remova vendas antigas ou fotos.');
                 }
             }
 
@@ -169,7 +189,7 @@
                 return (parseFloat(preco) + 5) * 2;
             }
 
-            // ---------- Render (seguro, sem innerHTML para dados) ----------
+            // ---------- Render da tabela (DOM puro) ----------
             function renderTable() {
                 salesBody.innerHTML = '';
                 const termo = searchInput.value.toLowerCase().trim();
@@ -177,7 +197,7 @@
 
                 if (filtradas.length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="8" style="text-align:center;">Nenhuma proposta encontrada.</td>';
+                    tr.innerHTML = '<td colspan="8" style="text-align:center; padding:30px;">Nenhuma proposta encontrada.</td>';
                     salesBody.appendChild(tr);
                 } else {
                     filtradas.forEach(venda => {
@@ -185,28 +205,26 @@
                         const comissao = calcularComissao(venda.price);
                         const tr = document.createElement('tr');
 
-                        // Cliente
-                        const tdCliente = document.createElement('td');
-                        tdCliente.textContent = venda.clientName;
-                        tr.appendChild(tdCliente);
-                        // Pacote
-                        const tdPacote = document.createElement('td');
-                        tdPacote.textContent = venda.packageDesc;
-                        tr.appendChild(tdPacote);
-                        // Preço
-                        const tdPreco = document.createElement('td');
-                        tdPreco.textContent = '€' + parseFloat(venda.price).toFixed(2);
-                        tr.appendChild(tdPreco);
-                        // Comissão
-                        const tdComissao = document.createElement('td');
-                        tdComissao.innerHTML = '<strong>€' + comissao.toFixed(2) + '</strong>';
-                        tr.appendChild(tdComissao);
-                        // IBAN
-                        const tdIban = document.createElement('td');
-                        tdIban.textContent = venda.iban.slice(0,4) + '...' + venda.iban.slice(-4);
+                        function appendCell(label, text, isHTML = false) {
+                            const td = document.createElement('td');
+                            td.setAttribute('data-label', label);
+                            if (isHTML) td.innerHTML = text;
+                            else td.textContent = text;
+                            return td;
+                        }
+
+                        tr.appendChild(appendCell('Cliente', venda.clientName));
+                        tr.appendChild(appendCell('Pacote', venda.packageDesc));
+                        tr.appendChild(appendCell('Preço', '€' + parseFloat(venda.price).toFixed(2)));
+                        tr.appendChild(appendCell('Comissão', '<strong>€' + comissao.toFixed(2) + '</strong>', true));
+
+                        // IBAN mascarado
+                        const tdIban = appendCell('IBAN', venda.iban.slice(0,4) + '...' + venda.iban.slice(-4));
                         tr.appendChild(tdIban);
+
                         // Fotos
                         const tdFotos = document.createElement('td');
+                        tdFotos.setAttribute('data-label', 'Fotos');
                         const divFotos = document.createElement('div');
                         divFotos.className = 'photo-thumbs';
                         if (venda.idPhoto) {
@@ -223,8 +241,10 @@
                         }
                         tdFotos.appendChild(divFotos);
                         tr.appendChild(tdFotos);
+
                         // Estado
                         const tdEstado = document.createElement('td');
+                        tdEstado.setAttribute('data-label', 'Estado');
                         const select = document.createElement('select');
                         select.className = 'estado-select';
                         select.dataset.index = idxGlobal;
@@ -235,22 +255,29 @@
                             if (venda.estado === est) opt.selected = true;
                             select.appendChild(opt);
                         });
+                        // Define a classe correta
+                        select.classList.add(
+                            venda.estado === 'Vendido' ? 'estado-vendido' :
+                            venda.estado === 'Recusado' ? 'estado-recusado' : 'estado-pendente'
+                        );
                         select.addEventListener('change', function() {
                             sales[this.dataset.index].estado = this.value;
                             saveData();
-                            renderTable();
+                            renderTable(); // atualiza cores e totais
                         });
                         tdEstado.appendChild(select);
                         tr.appendChild(tdEstado);
+
                         // Ações
                         const tdAcoes = document.createElement('td');
+                        tdAcoes.setAttribute('data-label', 'Ações');
                         const btnEdit = document.createElement('button');
                         btnEdit.textContent = '✏️';
-                        btnEdit.className = 'action-btn';
+                        btnEdit.className = 'action-btn edit-btn';
                         btnEdit.addEventListener('click', () => editarVenda(idxGlobal));
                         const btnDel = document.createElement('button');
                         btnDel.textContent = '🗑️';
-                        btnDel.className = 'action-btn';
+                        btnDel.className = 'action-btn delete-btn';
                         btnDel.addEventListener('click', () => eliminarVenda(idxGlobal));
                         tdAcoes.appendChild(btnEdit);
                         tdAcoes.appendChild(btnDel);
@@ -285,6 +312,7 @@
                     if (v.idPhoto) { idPhotoPreview.src = v.idPhoto; idPhotoPreview.style.display = 'block'; }
                     if (v.nosBill) { nosBillPreview.src = v.nosBill; nosBillPreview.style.display = 'block'; }
                 }
+                clientName.focus();
             }
 
             function fecharModal() {
@@ -340,52 +368,4 @@
                     packageDesc: packageDesc.value.trim(),
                     price: price.value,
                     iban: iban.value.trim(),
-                    idPhoto: idPhoto || null,
-                    nosBill: nosBill || null,
-                    estado: currentEditIndex > -1 ? sales[currentEditIndex].estado : 'Pendente'
-                };
-
-                if (currentEditIndex === -1) {
-                    sales.unshift(nova);
-                } else {
-                    sales[currentEditIndex] = nova;
-                }
-
-                saveData();
-                renderTable();
-                fecharModal();
-                idPhotoInput._dataUrl = undefined;
-                nosBillInput._dataUrl = undefined;
-            }
-
-            function editarVenda(idx) { abrirModal(idx); }
-            function eliminarVenda(idx) {
-                if (confirm('Eliminar esta proposta?')) {
-                    sales.splice(idx, 1);
-                    saveData();
-                    renderTable();
-                }
-            }
-
-            function abrirImagem(src) {
-                const div = document.createElement('div');
-                div.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000;';
-                div.innerHTML = `<span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer;">&times;</span>
-                                 <img src="${src}" style="max-width:90%; max-height:90%;">`;
-                div.querySelector('span').addEventListener('click', () => div.remove());
-                document.body.appendChild(div);
-            }
-
-            // ---------- Diagnóstico ----------
-            function testarArmazenamento() {
-                diagnosticoDiv.style.display = 'block';
-                try {
-                    const testKey = '__test_voda__';
-                    localStorage.setItem(testKey, 'ok');
-                    localStorage.removeItem(testKey);
-                    diagnosticoDiv.innerHTML = '✅ <strong>Armazenamento funciona!</strong> Pode guardar dados.';
-                    diagnosticoDiv.style.background = '#d4edda';
-                } catch (e) {
-                    diagnosticoDiv.innerHTML = '❌ <strong>Erro no armazenamento:</strong> ' + e.message + '<br>Tente limpar os dados do navegador ou use outro browser.';
-                    diagnosticoDiv.style.background = '#f8d7da';
-         
+                    idPhoto: idPhoto ||

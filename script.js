@@ -1,23 +1,21 @@
-// Vodafone Sales Organizer - script.js
-// Stores data as array of objects in localStorage
+// Vodafone Sales Organizer - script.js (versão completa e funcional)
 
 let sales = [];
 let currentEditIndex = -1;
-
 const STORAGE_KEY = 'vodafone_sales_data';
 
-// DOM elements
+// ---- Elementos do DOM ----
 const addBtn = document.getElementById('addBtn');
 const searchInput = document.getElementById('searchInput');
 const salesBody = document.getElementById('salesBody');
+const summaryRow = document.getElementById('summaryRow');
+const totalComissao = document.getElementById('totalComissao');
 const modal = document.getElementById('modal');
 const salesForm = document.getElementById('salesForm');
 const closeBtn = document.querySelector('.close');
 const cancelBtn = document.getElementById('cancelBtn');
 const modalTitle = document.getElementById('modalTitle');
-const editIndexInput = document.getElementById('editIndex');
 
-// Form fields
 const clientName = document.getElementById('clientName');
 const packageDesc = document.getElementById('packageDesc');
 const price = document.getElementById('price');
@@ -27,97 +25,127 @@ const nosBillInput = document.getElementById('nosBill');
 const idPhotoPreview = document.getElementById('idPhotoPreview');
 const nosBillPreview = document.getElementById('nosBillPreview');
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', function() {
+// ---- Inicialização ----
+document.addEventListener('DOMContentLoaded', () => {
     loadData();
     renderTable();
     setupEventListeners();
 });
 
 function setupEventListeners() {
-    addBtn.addEventListener('click', openModal);
+    addBtn.addEventListener('click', () => openModal(-1));
     searchInput.addEventListener('input', renderTable);
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) closeModal();
-    });
-    
+    window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
     idPhotoInput.addEventListener('change', handleIdPhoto);
     nosBillInput.addEventListener('change', handleNosBill);
-    
     salesForm.addEventListener('submit', handleSubmit);
 }
 
+// ---- Persistência ----
 function loadData() {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
-        sales = JSON.parse(data);
+        try {
+            sales = JSON.parse(data);
+        } catch (e) {
+            console.error('Erro ao carregar dados:', e);
+            sales = [];
+        }
     }
 }
 
 function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sales));
+    } catch (e) {
+        alert('❌ Armazenamento cheio! As fotos podem ser muito grandes.\nReduza o tamanho das imagens ou elimine algumas vendas.');
+        console.error('Erro ao guardar:', e);
+    }
 }
 
-function renderTable(filteredSales = sales) {
-    const tbody = salesBody;
-    tbody.innerHTML = '';
-    
-    if (filteredSales.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta encontrada. Adicione a primeira!</td></tr>';
+// ---- Lógica de negócio ----
+function calcularComissao(preco) {
+    return (parseFloat(preco) * 2) + 5;
+}
+
+function atualizarSumario() {
+    const total = sales.reduce((soma, venda) => soma + calcularComissao(venda.price), 0);
+    totalComissao.textContent = total.toFixed(2) + ' €';
+    summaryRow.style.display = sales.length ? 'table-row' : 'none';
+}
+
+// ---- Renderização da tabela ----
+function renderTable() {
+    const termo = searchInput.value.toLowerCase().trim();
+    const filtradas = termo
+        ? sales.filter(v => v.clientName.toLowerCase().includes(termo))
+        : sales;
+
+    salesBody.innerHTML = '';
+
+    if (filtradas.length === 0) {
+        salesBody.innerHTML = `<tr><td colspan="7" class="empty-state">Nenhuma proposta encontrada.</td></tr>`;
+        atualizarSumario();
         return;
     }
-    
-    filteredSales.forEach((sale, index) => {
-        const globalIndex = sales.indexOf(sale);
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${escapeHtml(sale.clientName)}</td>
-            <td>${escapeHtml(sale.packageDesc)}</td>
-            <td>€${parseFloat(sale.price).toFixed(2)}</td>
-            <td>${escapeHtml(sale.iban.slice(0,4) + '...' + sale.iban.slice(-4))}</td>
+
+    filtradas.forEach(venda => {
+        const idxGlobal = sales.indexOf(venda);
+        const comissao = calcularComissao(venda.price);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${escapeHtml(venda.clientName)}</td>
+            <td>${escapeHtml(venda.packageDesc)}</td>
+            <td>€${parseFloat(venda.price).toFixed(2)}</td>
+            <td><strong>€${comissao.toFixed(2)}</strong></td>
+            <td>${escapeHtml(venda.iban.slice(0,4) + '...' + venda.iban.slice(-4))}</td>
             <td>
                 <div class="photo-thumbs">
-                    ${sale.idPhoto ? `<img src="${sale.idPhoto}" alt="Cartão Cidadão" onclick="openImageModal('${sale.idPhoto}')">` : ''}
-                    ${sale.nosBill ? `<img src="${sale.nosBill}" alt="Fatura NOS" onclick="openImageModal('${sale.nosBill}')">` : ''}
+                    ${venda.idPhoto ? `<img src="${venda.idPhoto}" alt="Cartão Cidadão" onclick="abrirImagem('${venda.idPhoto}')">` : ''}
+                    ${venda.nosBill ? `<img src="${venda.nosBill}" alt="Fatura NOS" onclick="abrirImagem('${venda.nosBill}')">` : ''}
                 </div>
             </td>
             <td>
-                <button class="action-btn edit-btn" onclick="editSale(${globalIndex})" title="Editar">✏️</button>
-                <button class="action-btn delete-btn" onclick="deleteSale(${globalIndex})" title="Eliminar">🗑️</button>
+                <button class="action-btn edit-btn" onclick="editarVenda(${idxGlobal})" title="Editar">✏️</button>
+                <button class="action-btn delete-btn" onclick="eliminarVenda(${idxGlobal})" title="Eliminar">🗑️</button>
             </td>
         `;
-        tbody.appendChild(row);
+        salesBody.appendChild(tr);
     });
+
+    atualizarSumario();
 }
 
-function openModal(index = -1) {
-    currentEditIndex = index;
+// ---- Modal ----
+function openModal(indice) {
+    currentEditIndex = indice;
     modal.style.display = 'block';
-    modalTitle.textContent = index === -1 ? 'Nova Proposta' : 'Editar Proposta';
+    modalTitle.textContent = indice === -1 ? 'Nova Proposta' : 'Editar Proposta';
     salesForm.reset();
     idPhotoPreview.style.display = 'none';
     nosBillPreview.style.display = 'none';
-    
-    if (index > -1) {
-        const sale = sales[index];
-        clientName.value = sale.clientName;
-        packageDesc.value = sale.packageDesc;
-        price.value = sale.price;
-        iban.value = sale.iban;
-        editIndexInput.value = index;
-        
-        if (sale.idPhoto) {
-            idPhotoPreview.src = sale.idPhoto;
+
+    if (indice > -1) {
+        const v = sales[indice];
+        clientName.value = v.clientName;
+        packageDesc.value = v.packageDesc;
+        price.value = v.price;
+        iban.value = v.iban;
+
+        if (v.idPhoto) {
+            idPhotoPreview.src = v.idPhoto;
             idPhotoPreview.style.display = 'block';
         }
-        if (sale.nosBill) {
-            nosBillPreview.src = sale.nosBill;
+        if (v.nosBill) {
+            nosBillPreview.src = v.nosBill;
             nosBillPreview.style.display = 'block';
         }
     }
-    
+
     clientName.focus();
 }
 
@@ -126,108 +154,114 @@ function closeModal() {
     currentEditIndex = -1;
 }
 
-function handleIdPhoto(e) {
-    const file = e.target.files[0];
-    if (file) {
+// ---- Processamento de imagens (com compressão amigável) ----
+function processarFicheiro(file, previewImg) {
+    return new Promise((resolve) => {
+        if (!file) return resolve(null);
         const reader = new FileReader();
-        reader.onload = function(e) {
-            idPhotoPreview.src = e.target.result;
-            idPhotoPreview.style.display = 'block';
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // Redimensionar para no máximo 400px de largura (poupa imenso espaço)
+                const MAX_WIDTH = 400;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // qualidade 70%
+                previewImg.src = compressedDataUrl;
+                previewImg.style.display = 'block';
+                resolve(compressedDataUrl);
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
-    }
+    });
 }
 
-function handleNosBill(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            nosBillPreview.src = e.target.result;
-            nosBillPreview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
+async function handleIdPhoto(e) {
+    const base64 = await processarFicheiro(e.target.files[0], idPhotoPreview);
+    // Guardamos temporariamente; será recolhido no submit
+    e.target._dataUrl = base64;
+}
+async function handleNosBill(e) {
+    const base64 = await processarFicheiro(e.target.files[0], nosBillPreview);
+    e.target._dataUrl = base64;
 }
 
-function handleSubmit(e) {
+// ---- Submeter formulário ----
+async function handleSubmit(e) {
     e.preventDefault();
-    
-    const idPhoto = idPhotoPreview.style.display === 'block' ? idPhotoPreview.src : '';
-    const nosBill = nosBillPreview.style.display === 'block' ? nosBillPreview.src : '';
-    
-    const saleData = {
+
+    // Obtém as imagens comprimidas (ou mantém as anteriores se não foram alteradas)
+    const novaIdPhoto = idPhotoInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].idPhoto : null);
+    const novaNosBill = nosBillInput._dataUrl || (currentEditIndex > -1 ? sales[currentEditIndex].nosBill : null);
+
+    const novaVenda = {
         clientName: clientName.value.trim(),
         packageDesc: packageDesc.value.trim(),
         price: price.value,
         iban: iban.value.trim(),
-        idPhoto: idPhoto || null,
-        nosBill: nosBill || null
+        idPhoto: novaIdPhoto || null,
+        nosBill: novaNosBill || null
     };
-    
+
     if (currentEditIndex === -1) {
-        sales.unshift(saleData); // Add to top
+        sales.unshift(novaVenda);
     } else {
-        sales[currentEditIndex] = saleData;
+        sales[currentEditIndex] = novaVenda;
     }
-    
+
     saveData();
     renderTable();
     closeModal();
+
+    // Limpar dados temporários dos inputs
+    idPhotoInput._dataUrl = undefined;
+    nosBillInput._dataUrl = undefined;
 }
 
-function editSale(index) {
-    openModal(index);
+// ---- Ações da tabela ----
+function editarVenda(indice) {
+    openModal(indice);
 }
 
-function deleteSale(index) {
+function eliminarVenda(indice) {
     if (confirm('Tem a certeza que quer eliminar esta proposta?')) {
-        sales.splice(index, 1);
+        sales.splice(indice, 1);
         saveData();
         renderTable();
     }
 }
 
-function openImageModal(imageSrc) {
-    // Simple full-screen image preview
+function abrirImagem(src) {
     const imgModal = document.createElement('div');
-    imgModal.className = 'modal image-modal';
-    imgModal.style.cssText = `
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,0.9);
-    `;
+    imgModal.className = 'modal';
+    imgModal.style.display = 'flex';
+    imgModal.style.alignItems = 'center';
+    imgModal.style.justifyContent = 'center';
+    imgModal.style.background = 'rgba(0,0,0,0.9)';
     imgModal.innerHTML = `
-        <span class="close" style="position: fixed; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer;" onclick="this.parentElement.remove()">&times;</span>
-        <img src="${imageSrc}" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+        <span style="position:fixed; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer" onclick="this.parentElement.remove()">&times;</span>
+        <img src="${src}" style="max-width:90%; max-height:90%; object-fit:contain;">
     `;
     document.body.appendChild(imgModal);
 }
 
-function escapeHtml(text) {
+function escapeHtml(texto) {
     const map = {
         '&': '&amp;',
-        '<': '<',
-        '>': '>',
-        '"': '"',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return texto.replace(/[&<>"']/g, m => map[m]);
 }
-
-// Search functionality
-function getSearchTerm() {
-    return searchInput.value.toLowerCase().trim();
-}
-
-// Filter table on search (called by input event)
-const originalRenderTable = renderTable;
-renderTable = function() {
-    const term = getSearchTerm();
-    const filtered = sales.filter(sale => 
-        sale.clientName.toLowerCase().includes(term)
-    );
-    originalRenderTable(filtered);
-};
-

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vodafone Vendas Pro</title>
-    <!-- Firebase compat (CDN) – esta é a versão que funciona num ficheiro normal -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        /* ---------- estilos iguais aos que já tinhas (mantive os mesmos) ---------- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -133,7 +133,7 @@
 </div>
 
 <script>
-// ⚠️ As tuas credenciais já estão aqui
+// Configuração do Firebase (já está com as credenciais que forneceste)
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -144,7 +144,7 @@ const firebaseConfig = {
     measurementId: "G-9MB59HCF4D"
 };
 
-// Inicializa o Firebase (compat)
+// Inicializa Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const vendasRef = db.collection("vendas");
@@ -152,20 +152,17 @@ const vendasRef = db.collection("vendas");
 let vendas = [];
 let editIndex = -1;
 
-// ---------- Função de comissão ----------
 function calcComissao(preco) {
     return (parseFloat(preco) + 5) * 2;
 }
 
-// ---------- Mostrar erros ----------
 function showError(msg) {
     const banner = document.getElementById('errorBanner');
     banner.textContent = '❌ ' + msg;
     banner.style.display = 'block';
-    setTimeout(() => banner.style.display = 'none', 5000);
+    setTimeout(() => banner.style.display = 'none', 8000);
 }
 
-// ---------- Renderizar tabela ----------
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
     const filtradas = termo ? vendas.filter(v => v.nome.toLowerCase().includes(termo)) : vendas;
@@ -200,7 +197,6 @@ function renderizar() {
             tbody.appendChild(tr);
         });
 
-        // Event listeners para editar
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.id;
@@ -208,7 +204,6 @@ function renderizar() {
                 if (v) abrirModal(v);
             });
         });
-        // Event listeners para eliminar
         document.querySelectorAll('.icon-btn.delete').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.dataset.id;
@@ -221,7 +216,6 @@ function renderizar() {
                 }
             });
         });
-        // Listeners para mudar estado
         document.querySelectorAll('.badge').forEach(select => {
             select.addEventListener('change', async function() {
                 const id = this.dataset.id;
@@ -235,14 +229,12 @@ function renderizar() {
         });
     }
 
-    // Atualizar totais
     const totalG = vendas.reduce((s, v) => s + calcComissao(v.preco), 0);
     const totalV = vendas.filter(v => v.estado === 'Vendido').reduce((s, v) => s + calcComissao(v.preco), 0);
     document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
     document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
 }
 
-// ---------- Modal ----------
 function abrirModal(venda = null) {
     editIndex = venda ? vendas.findIndex(v => v.id === venda.id) : -1;
     document.getElementById('modalTitle').textContent = venda ? 'Editar Proposta' : 'Nova Proposta';
@@ -258,32 +250,27 @@ function fecharModal() {
     editIndex = -1;
 }
 
-// ---------- Escutar mudanças na Firestore ----------
+// Escuta em tempo real SEM ordenação (evita necessidade de índice composto)
 function escutarMudancas() {
-    vendasRef.orderBy("data", "desc").onSnapshot(snapshot => {
+    vendasRef.onSnapshot(snapshot => {
         vendas = [];
         snapshot.forEach(doc => {
             vendas.push({ id: doc.id, ...doc.data() });
         });
         renderizar();
     }, error => {
-        showError('Falha ao ler dados: ' + error.message + ' (Verifique se a Firestore está ativada no Firebase Console)');
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Erro de ligação – ative a Firestore no Firebase</td></tr>';
+        showError('Erro ao carregar dados: ' + error.message + ' (Verifique se a Firestore está ativada no Console Firebase)');
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Falha de ligação – Firestore não ativada?</td></tr>';
     });
 }
 
-// ---------- Eventos ----------
 document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
 document.getElementById('btnReset').addEventListener('click', async () => {
     if (confirm('⚠️ Apagar TODAS as vendas?')) {
-        try {
-            const snapshot = await vendasRef.get();
-            const batch = db.batch();
-            snapshot.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-        } catch (e) {
-            showError('Erro ao limpar: ' + e.message);
-        }
+        const snapshot = await vendasRef.get();
+        const batch = db.batch();
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
     }
 });
 document.getElementById('closeModal').addEventListener('click', fecharModal);
@@ -319,12 +306,10 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     }
 });
 
-// Fechar modal ao clicar fora
 window.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVenda')) fecharModal();
 });
 
-// Iniciar a escuta da Firestore
 escutarMudancas();
 </script>
 </body>

@@ -369,8 +369,9 @@
                 }
             }
 
+            //  Fórmula corrigida: (preço + 5) * 2
             function calcularComissao(preco) {
-                return (parseFloat(preco) * 2) + 5;
+                return (parseFloat(preco) + 5) * 2;
             }
 
             function atualizarSumario() {
@@ -420,7 +421,7 @@
                         salesBody.appendChild(tr);
                     });
 
-                    // Adicionar event listeners aos botões (evitar inline onclick)
+                    // Event listeners para botões
                     document.querySelectorAll('.edit-btn').forEach(btn => {
                         btn.addEventListener('click', () => editarVenda(parseInt(btn.dataset.index)));
                     });
@@ -498,7 +499,7 @@
 
             async function handleIdPhoto(e) {
                 const base64 = await comprimirImagem(e.target.files[0], idPhotoPreview);
-                e.target._dataUrl = base64; // guarda para o submit
+                e.target._dataUrl = base64;
             }
 
             async function handleNosBill(e) {
@@ -532,7 +533,6 @@
                 renderTable();
                 fecharModal();
 
-                // limpar dados temporários
                 idPhotoInput._dataUrl = undefined;
                 nosBillInput._dataUrl = undefined;
             }
@@ -546,4 +546,8 @@
                 if (confirm('Tem a certeza que quer eliminar esta proposta?')) {
                     sales.splice(indice, 1);
                     saveData();
-                   
+                    renderTable();
+                }
+            }
+
+ 

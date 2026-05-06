@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* mesmos estilos que já tinhas */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -152,7 +151,7 @@ let vendas = {};
 let editKey = null;
 
 function calcComissao(preco) {
-    return (parseFloat(preco) + 5) * 2;
+    return parseFloat(preco) * 2;   // ⚠️ Alterado: apenas multiplicação por 2, sem +5
 }
 
 function showError(msg) {

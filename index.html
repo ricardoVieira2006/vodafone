@@ -141,7 +141,7 @@
 </div>
 
 <script>
-// Configuração do Firebase
+// Configuração do Firebase (substitui se necessário)
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -160,7 +160,7 @@ let vendas = {};
 let editKey = null;
 
 function calcComissao(preco) {
-    return parseFloat(preco) * 2;   // apenas dobro
+    return parseFloat(preco) * 2;   // apenas dobro do preço
 }
 
 function showError(msg) {
@@ -172,15 +172,23 @@ function showError(msg) {
 
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-    const lista = Object.entries(vendas).map(([key, val]) => ({ key, ...val }));
-    const filtradas = termo ? lista.filter(v => v.nome.toLowerCase().includes(termo)) : lista;
+    // 1. Converter objeto vendas em array
+    let lista = Object.entries(vendas).map(([key, val]) => ({ key, ...val }));
+    // 2. Filtrar pelo termo de pesquisa
+    if (termo) {
+        lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
+    }
+    // 3. Ordenar: Vendido (1), Pendente (2), Recusado (3)
+    const ordem = { 'Vendido': 1, 'Pendente': 2, 'Recusado': 3 };
+    lista.sort((a, b) => (ordem[a.estado] || 99) - (ordem[b.estado] || 99));
+
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
 
-    if (filtradas.length === 0) {
+    if (lista.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta encontrada</td></tr>';
     } else {
-        filtradas.forEach(v => {
+        lista.forEach(v => {
             const comissao = calcComissao(v.preco);
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -205,6 +213,7 @@ function renderizar() {
             tbody.appendChild(tr);
         });
 
+        // Listener para editar
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
@@ -212,6 +221,7 @@ function renderizar() {
                 if (v) abrirModal(key, v);
             });
         });
+        // Listener para eliminar
         document.querySelectorAll('.icon-btn.delete').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const key = btn.dataset.key;
@@ -220,6 +230,7 @@ function renderizar() {
                 }
             });
         });
+        // Listener para mudar estado via select
         document.querySelectorAll('.badge').forEach(select => {
             select.addEventListener('change', async function() {
                 const key = this.dataset.key;
@@ -229,7 +240,7 @@ function renderizar() {
         });
     }
 
-    // Atualizar totais e contagens
+    // Atualizar contagens e totais
     const todas = Object.values(vendas);
     const totalG = todas.reduce((s, v) => s + calcComissao(v.preco), 0);
     const vendidas = todas.filter(v => v.estado === 'Vendido');
@@ -238,10 +249,8 @@ function renderizar() {
 
     document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
     document.getElementById('totalGeralCount').textContent = todas.length + ' proposta(s)';
-
     document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
     document.getElementById('totalVendidoCount').textContent = vendidas.length + ' vendida(s)';
-
     document.getElementById('totalPendentes').textContent = pendentes.length;
 }
 
@@ -260,7 +269,7 @@ function fecharModal() {
     editKey = null;
 }
 
-// Escuta em tempo real
+// Escuta da base de dados em tempo real
 vendasRef.on('value', snapshot => {
     vendas = snapshot.val() || {};
     renderizar();

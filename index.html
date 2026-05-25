@@ -17,16 +17,13 @@
         .btn-add { background: #e60000; color: white; }
         .btn-add:hover { background: #cc0000; }
         .btn-outline { background: white; color: #e60000; border: 2px solid #e60000; }
-        .btn-danger { background: #fff5f5; color: #e60000; border: 2px solid #e60000; }
         .btn-success { background: #27ae60; color: white; }
         .btn-success:hover { background: #219a52; }
-        
-        /* Menu de meses */
-        .month-selector { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .month-selector label { font-weight: 600; margin-right: 10px; }
-        .month-selector select { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; cursor: pointer; }
-        .month-badge { background: #e60000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-        
+        .month-selector { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .month-selector label { font-weight: 600; }
+        .month-selector select { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; cursor: pointer; min-width: 200px; }
+        .current-badge { background: #e60000; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .history-badge { background: #3498db; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
         .search-bar input { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 30px; margin: 20px 0; font-size: 1rem; }
         .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #e60000; }
@@ -43,7 +40,6 @@
         .client-name { font-weight: 600; }
         .package { color: #666; font-size: 0.9rem; }
         .price { font-weight: 600; }
-        .commission { font-weight: 700; color: #27ae60; font-size: 1.1rem; }
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; border: none; cursor: pointer; }
         .badge-pendente { background: #fff3cd; color: #856404; }
         .badge-vendido { background: #d4edda; color: #155724; }
@@ -67,8 +63,6 @@
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
-        .transition-btn { margin-left: 10px; }
-        
         @media (max-width: 768px) {
             .header h1 { font-size: 1.3rem; }
             .month-selector { flex-direction: column; align-items: stretch; }
@@ -83,19 +77,18 @@
 <div class="container">
     <div class="header">
         <h1>📊 <span>Vodafone</span> Vendas Pro</h1>
-        <div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="btn btn-add" id="btnAdd">+ Nova proposta</button>
-            <button class="btn btn-success transition-btn" id="btnTransition">🔄 Novo Mês</button>
+            <button class="btn btn-success" id="btnNewMonth">🔄 Novo mês</button>
         </div>
     </div>
 
-    <!-- Seletor de mês -->
     <div class="month-selector">
         <label>📅 Período:</label>
         <select id="monthSelect">
-            <option value="">Carregando meses...</option>
+            <option>Carregando...</option>
         </select>
-        <span class="month-badge" id="currentMonthLabel">Mês atual</span>
+        <span id="monthBadge" class="current-badge">Mês atual</span>
     </div>
 
     <div class="search-bar">
@@ -104,14 +97,14 @@
 
     <div class="summary">
         <div class="card">
-            <h3>Total do Mês</h3>
-            <div class="value" id="totalGeral">0,00 €</div>
-            <div class="sub" id="totalGeralCount">0 propostas</div>
+            <h3>Total do Período</h3>
+            <div class="value" id="totalPeriodo">0,00 €</div>
+            <div class="sub" id="totalPropostas">0 propostas</div>
         </div>
         <div class="card success">
             <h3>Total Vendido</h3>
             <div class="value" id="totalVendido">0,00 €</div>
-            <div class="sub" id="totalVendidoCount">0 vendidas</div>
+            <div class="sub" id="totalVendidas">0 vendidas</div>
         </div>
         <div class="card warning">
             <h3>Pendentes</h3>
@@ -119,7 +112,7 @@
             <div class="sub">aguardando</div>
         </div>
         <div class="card info">
-            <h3>Média/Venda</h3>
+            <h3>Média por Venda</h3>
             <div class="value" id="mediaVenda">0,00 €</div>
             <div class="sub">por venda</div>
         </div>
@@ -132,12 +125,11 @@
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="5" class="empty-state">A carregar dados...</td></tr>
+            <tr><td colspan="5" class="empty-state">Carregando dados...</td></tr>
         </tbody>
     </table>
 </div>
 
-<!-- Modal (igual) -->
 <div class="modal" id="modalVenda">
     <div class="modal-content">
         <div class="modal-header">
@@ -170,6 +162,7 @@
 </div>
 
 <script>
+// Configuração Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -181,85 +174,140 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const vendasRef = database.ref("vendas");
-const mesesRef = database.ref("config/meses");
+const db = firebase.database();
+const vendasRef = db.ref("vendas");
+const mesesRef = db.ref("config/meses");
 
-let todasVendas = {};     // Todas as vendas (todos os meses)
-let vendasMesAtual = {};  // Vendas do mês selecionado
-let mesAtual = '';        // Mês selecionado (formato: YYYY-MM)
+let todasVendas = {};
+let vendasFiltradas = {};
+let periodoAtual = '';
 let editKey = null;
-let editMonth = null;
 
-// ---- Funções auxiliares ----
-function getMesAno() {
-    const agora = new Date();
-    return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
+// ---- Lógica de período (dia 25 ao dia 26 do mês seguinte) ----
+function obterPeriodoAtual() {
+    const hoje = new Date();
+    const dia = hoje.getDate();
+    const mes = hoje.getMonth(); // 0-11
+    const ano = hoje.getFullYear();
+    
+    let mesReferencia, anoReferencia;
+    
+    if (dia >= 25) {
+        // Estamos no período do mês atual até dia 26 do próximo
+        mesReferencia = mes;
+        anoReferencia = ano;
+    } else if (dia <= 26) {
+        // Estamos no período do mês passado (dia 25 do mês passado até dia 26 deste mês)
+        mesReferencia = mes - 1;
+        anoReferencia = ano;
+        if (mesReferencia < 0) {
+            mesReferencia = 11;
+            anoReferencia = ano - 1;
+        }
+    } else {
+        // Dias 27-31: período atual
+        mesReferencia = mes;
+        anoReferencia = ano;
+    }
+    
+    return `${anoReferencia}-${String(mesReferencia + 1).padStart(2, '0')}`;
 }
 
-function formatMesAno(mesAno) {
-    if (!mesAno) return '';
-    const [ano, mes] = mesAno.split('-');
+function formatarPeriodo(periodo) {
+    if (!periodo) return '';
+    const [ano, mes] = periodo.split('-');
     const nomes = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    return `${nomes[parseInt(mes)]} de ${ano}`;
+    const mesInt = parseInt(mes);
+    const mesStr = nomes[mesInt];
+    
+    // Calcular próximo mês para mostrar "25 Jan a 26 Fev"
+    let proxMes = mesInt;
+    let proxAno = parseInt(ano);
+    if (proxMes === 12) {
+        proxMes = 1;
+        proxAno++;
+    } else {
+        proxMes++;
+    }
+    
+    return `25 ${mesStr} ${ano} → 26 ${nomes[proxMes]} ${proxAno}`;
 }
 
-// ---- Inicialização ----
-async function carregarMeses() {
-    const snapshot = await mesesRef.once('value');
-    let meses = snapshot.val() || [];
+// ---- Carregamento inicial ----
+async function inicializar() {
+    const hoje = obterPeriodoAtual();
+    
+    // Carregar meses configurados
+    const snapMeses = await mesesRef.once('value');
+    let meses = snapMeses.val() || [];
     if (!Array.isArray(meses)) meses = [];
     
-    if (meses.length === 0) {
-        const mesInicial = getMesAno();
-        meses = [mesInicial];
+    // Se não existe o período atual, adicionar
+    if (!meses.includes(hoje)) {
+        meses.push(hoje);
+        // Ordenar
+        meses.sort();
         await mesesRef.set(meses);
     }
     
+    // Preencher select
     const select = document.getElementById('monthSelect');
     select.innerHTML = '';
     meses.forEach(m => {
         const opt = document.createElement('option');
         opt.value = m;
-        opt.textContent = formatMesAno(m);
+        opt.textContent = formatarPeriodo(m);
         select.appendChild(opt);
     });
     
-    mesAtual = meses[meses.length - 1];
-    select.value = mesAtual;
-    document.getElementById('currentMonthLabel').textContent = 
-        mesAtual === getMesAno() ? '📌 Mês atual' : '📅 Histórico';
+    // Selecionar período atual
+    periodoAtual = hoje;
+    select.value = periodoAtual;
+    atualizarBadge();
     
-    await carregarDados();
+    // Carregar vendas
+    await carregarVendas();
 }
 
-async function carregarDados() {
-    const snapshot = await vendasRef.once('value');
-    todasVendas = snapshot.val() || {};
-    filtrarPorMes();
+async function carregarVendas() {
+    const snap = await vendasRef.once('value');
+    todasVendas = snap.val() || {};
+    filtrarPorPeriodo();
 }
 
-function filtrarPorMes() {
-    vendasMesAtual = {};
+function filtrarPorPeriodo() {
+    vendasFiltradas = {};
     Object.entries(todasVendas).forEach(([key, venda]) => {
-        if (venda.mes === mesAtual) {
-            vendasMesAtual[key] = venda;
+        if (venda.periodo === periodoAtual) {
+            vendasFiltradas[key] = venda;
         }
     });
     renderizar();
 }
 
-// ---- Renderização ----
+function atualizarBadge() {
+    const badge = document.getElementById('monthBadge');
+    const hoje = obterPeriodoAtual();
+    if (periodoAtual === hoje) {
+        badge.textContent = '📌 Período atual';
+        badge.className = 'current-badge';
+    } else {
+        badge.textContent = '📅 Histórico';
+        badge.className = 'history-badge';
+    }
+}
+
+// ---- Renderizar tabela ----
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-    let lista = Object.entries(vendasMesAtual).map(([key, val]) => ({ key, ...val }));
+    let lista = Object.entries(vendasFiltradas).map(([key, val]) => ({ key, ...val }));
     
     if (termo) {
         lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
     }
     
-    // Ordenar: Vendido > Pendente > Recusado
+    // Ordenar: Vendido (1), Pendente (2), Recusado (3)
     const ordem = { 'Vendido': 1, 'Pendente': 2, 'Recusado': 3 };
     lista.sort((a, b) => (ordem[a.estado] || 99) - (ordem[b.estado] || 99));
 
@@ -267,7 +315,7 @@ function renderizar() {
     tbody.innerHTML = '';
 
     if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhuma proposta neste mês</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhuma proposta neste período</td></tr>';
     } else {
         lista.forEach(v => {
             const tr = document.createElement('tr');
@@ -296,7 +344,7 @@ function renderizar() {
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
-                const v = vendasMesAtual[key];
+                const v = vendasFiltradas[key];
                 if (v) abrirModal(key, v);
             });
         });
@@ -317,18 +365,18 @@ function renderizar() {
         });
     }
 
-    // Atualizar totais (apenas soma, sem multiplicar)
-    const valores = Object.values(vendasMesAtual);
-    const totalG = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
+    // Atualizar totais (SOMA simples, sem multiplicação)
+    const valores = Object.values(vendasFiltradas);
+    const totalPeriodo = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
     const vendidas = valores.filter(v => v.estado === 'Vendido');
     const pendentes = valores.filter(v => v.estado === 'Pendente');
-    const totalV = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const media = vendidas.length > 0 ? totalV / vendidas.length : 0;
+    const totalVendido = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
+    const media = vendidas.length > 0 ? totalVendido / vendidas.length : 0;
 
-    document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
-    document.getElementById('totalGeralCount').textContent = valores.length + ' proposta(s)';
-    document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
-    document.getElementById('totalVendidoCount').textContent = vendidas.length + ' vendida(s)';
+    document.getElementById('totalPeriodo').textContent = totalPeriodo.toFixed(2) + ' €';
+    document.getElementById('totalPropostas').textContent = valores.length + ' proposta(s)';
+    document.getElementById('totalVendido').textContent = totalVendido.toFixed(2) + ' €';
+    document.getElementById('totalVendidas').textContent = vendidas.length + ' vendida(s)';
     document.getElementById('totalPendentes').textContent = pendentes.length;
     document.getElementById('mediaVenda').textContent = media.toFixed(2) + ' €';
 }
@@ -350,54 +398,67 @@ function fecharModal() {
     editKey = null;
 }
 
-// ---- Transição de mês ----
-async function transitarMes() {
-    if (!confirm('🔄 Criar novo mês?\n\nOs pendentes serão copiados para o novo mês.\nAs vendas e recusados ficam no mês atual.\n\nContinuar?')) {
+// ---- Transição para novo período ----
+async function criarNovoPeriodo() {
+    if (!confirm('🔄 Criar novo período de vendas?\n\n' +
+                 'Os pendentes serão copiados para o novo período.\n' +
+                 'Vendidos e recusados ficam no período atual.\n\n' +
+                 'Continuar?')) {
         return;
     }
     
-    const novoMes = getMesAno();
+    const novoPeriodo = obterPeriodoAtual();
     
     // Verificar se já existe
-    const snapshot = await mesesRef.once('value');
-    let meses = snapshot.val() || [];
-    if (meses.includes(novoMes)) {
-        alert('O mês atual já existe! Selecione-o no menu.');
+    const snap = await mesesRef.once('value');
+    let meses = snap.val() || [];
+    if (meses.includes(novoPeriodo)) {
+        alert('Este período já existe! Selecione-o no menu.');
+        periodoAtual = novoPeriodo;
+        document.getElementById('monthSelect').value = novoPeriodo;
+        atualizarBadge();
+        filtrarPorPeriodo();
         return;
     }
     
-    // Copiar pendentes para o novo mês
-    const pendentes = Object.values(vendasMesAtual).filter(v => v.estado === 'Pendente');
+    // Copiar pendentes para o novo período
+    const pendentes = Object.values(vendasFiltradas).filter(v => v.estado === 'Pendente');
     for (const v of pendentes) {
-        const novaVenda = { ...v, mes: novoMes, data: firebase.database.ServerValue.TIMESTAMP };
+        const novaVenda = { ...v, periodo: novoPeriodo, data: firebase.database.ServerValue.TIMESTAMP };
         await vendasRef.push(novaVenda);
     }
     
     // Atualizar lista de meses
-    meses.push(novoMes);
+    meses.push(novoPeriodo);
+    meses.sort();
     await mesesRef.set(meses);
     
-    // Recarregar
-    mesAtual = novoMes;
-    document.getElementById('monthSelect').value = novoMes;
-    document.getElementById('currentMonthLabel').textContent = '📌 Mês atual';
-    await carregarDados();
+    // Atualizar interface
+    periodoAtual = novoPeriodo;
+    const select = document.getElementById('monthSelect');
+    const opt = document.createElement('option');
+    opt.value = novoPeriodo;
+    opt.textContent = formatarPeriodo(novoPeriodo);
+    select.appendChild(opt);
+    select.value = novoPeriodo;
+    atualizarBadge();
+    await carregarVendas();
     
-    alert(`✅ Novo mês criado: ${formatMesAno(novoMes)}\n${pendentes.length} pendentes foram copiados.`);
+    alert(`✅ Novo período criado: ${formatarPeriodo(novoPeriodo)}\n` +
+          `${pendentes.length} pendentes foram copiados.`);
 }
 
-// ---- Eventos ----
+// ---- Event listeners ----
 document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
-document.getElementById('btnTransition').addEventListener('click', transitarMes);
+document.getElementById('btnNewMonth').addEventListener('click', criarNovoPeriodo);
 document.getElementById('closeModal').addEventListener('click', fecharModal);
 document.getElementById('btnCancel').addEventListener('click', fecharModal);
 document.getElementById('searchInput').addEventListener('input', renderizar);
 
 document.getElementById('monthSelect').addEventListener('change', function() {
-    mesAtual = this.value;
-    document.getElementById('currentMonthLabel').textContent = 
-        mesAtual === getMesAno() ? '📌 Mês atual' : '📅 Histórico';
-    filtrarPorMes();
+    periodoAtual = this.value;
+    atualizarBadge();
+    filtrarPorPeriodo();
 });
 
 document.getElementById('formVenda').addEventListener('submit', async (e) => {
@@ -414,8 +475,8 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
         pacote,
         preco: parseFloat(preco).toFixed(2),
         iban,
-        mes: mesAtual,
-        estado: editKey ? vendasMesAtual[editKey].estado : 'Pendente',
+        periodo: periodoAtual,
+        estado: editKey ? vendasFiltradas[editKey].estado : 'Pendente',
         data: firebase.database.ServerValue.TIMESTAMP
     };
 
@@ -438,11 +499,11 @@ window.addEventListener('click', (e) => {
 // Escuta em tempo real
 vendasRef.on('value', snapshot => {
     todasVendas = snapshot.val() || {};
-    filtrarPorMes();
+    filtrarPorPeriodo();
 });
 
-// Inicialização
-carregarMeses();
+// Inicializar
+inicializar();
 </script>
 </body>
 </html>

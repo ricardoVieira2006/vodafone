@@ -19,11 +19,13 @@
         .btn-outline { background: white; color: #e60000; border: 2px solid #e60000; }
         .btn-success { background: #27ae60; color: white; }
         .btn-success:hover { background: #219a52; }
+        
         .month-selector { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .month-selector label { font-weight: 600; }
-        .month-selector select { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; cursor: pointer; min-width: 200px; }
-        .current-badge { background: #e60000; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-        .history-badge { background: #3498db; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .month-selector label { font-weight: 600; white-space: nowrap; }
+        .month-selector select { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; cursor: pointer; min-width: 280px; }
+        .current-badge { background: #e60000; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+        .history-badge { background: #3498db; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+        
         .search-bar input { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 30px; margin: 20px 0; font-size: 1rem; }
         .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #e60000; }
@@ -63,6 +65,7 @@
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
+        
         @media (max-width: 768px) {
             .header h1 { font-size: 1.3rem; }
             .month-selector { flex-direction: column; align-items: stretch; }
@@ -79,16 +82,16 @@
         <h1>📊 <span>Vodafone</span> Vendas Pro</h1>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="btn btn-add" id="btnAdd">+ Nova proposta</button>
-            <button class="btn btn-success" id="btnNewMonth">🔄 Novo mês</button>
+            <button class="btn btn-success" id="btnNewMonth">🔄 Novo período</button>
         </div>
     </div>
 
     <div class="month-selector">
-        <label>📅 Período:</label>
+        <label>📅 Selecionar período:</label>
         <select id="monthSelect">
-            <option>Carregando...</option>
+            <option>Carregando períodos...</option>
         </select>
-        <span id="monthBadge" class="current-badge">Mês atual</span>
+        <span id="monthBadge" class="current-badge">Período atual</span>
     </div>
 
     <div class="search-bar">
@@ -176,94 +179,105 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const vendasRef = db.ref("vendas");
-const mesesRef = db.ref("config/meses");
+const periodosRef = db.ref("config/periodos");
 
 let todasVendas = {};
 let vendasFiltradas = {};
-let periodoAtual = '';
+let periodoSelecionado = '';
 let editKey = null;
 
-// ---- Lógica de período (dia 25 ao dia 26 do mês seguinte) ----
+// ---- Funções de data (período de 25 a 26) ----
 function obterPeriodoAtual() {
     const hoje = new Date();
     const dia = hoje.getDate();
     const mes = hoje.getMonth(); // 0-11
     const ano = hoje.getFullYear();
     
-    let mesReferencia, anoReferencia;
-    
     if (dia >= 25) {
-        // Estamos no período do mês atual até dia 26 do próximo
-        mesReferencia = mes;
-        anoReferencia = ano;
-    } else if (dia <= 26) {
-        // Estamos no período do mês passado (dia 25 do mês passado até dia 26 deste mês)
-        mesReferencia = mes - 1;
-        anoReferencia = ano;
-        if (mesReferencia < 0) {
-            mesReferencia = 11;
-            anoReferencia = ano - 1;
+        // Período do dia 25 deste mês até 26 do próximo
+        return { ano, mes };
+    } else {
+        // Período do dia 25 do mês passado até 26 deste mês
+        let mesRef = mes - 1;
+        let anoRef = ano;
+        if (mesRef < 0) {
+            mesRef = 11;
+            anoRef = ano - 1;
         }
-    } else {
-        // Dias 27-31: período atual
-        mesReferencia = mes;
-        anoReferencia = ano;
+        return { ano: anoRef, mes: mesRef };
     }
-    
-    return `${anoReferencia}-${String(mesReferencia + 1).padStart(2, '0')}`;
 }
 
-function formatarPeriodo(periodo) {
-    if (!periodo) return '';
-    const [ano, mes] = periodo.split('-');
-    const nomes = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+function periodoToString(ano, mes) {
+    return `${ano}-${String(mes + 1).padStart(2, '0')}`;
+}
+
+function formatarPeriodo(periodoStr) {
+    if (!periodoStr) return '';
+    const [ano, mes] = periodoStr.split('-');
+    const nomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const mesInt = parseInt(mes);
-    const mesStr = nomes[mesInt];
+    const mesInt = parseInt(mes) - 1;
     
-    // Calcular próximo mês para mostrar "25 Jan a 26 Fev"
-    let proxMes = mesInt;
-    let proxAno = parseInt(ano);
-    if (proxMes === 12) {
-        proxMes = 1;
-        proxAno++;
-    } else {
-        proxMes++;
+    // Calcular datas
+    const dataInicio = new Date(parseInt(ano), mesInt, 25);
+    let mesFim = mesInt + 1;
+    let anoFim = parseInt(ano);
+    if (mesFim > 11) {
+        mesFim = 0;
+        anoFim++;
     }
+    const dataFim = new Date(anoFim, mesFim, 26);
     
-    return `25 ${mesStr} ${ano} → 26 ${nomes[proxMes]} ${proxAno}`;
+    return `25 ${nomes[mesInt]} ${ano} → 26 ${nomes[mesFim]} ${anoFim}`;
 }
 
-// ---- Carregamento inicial ----
-async function inicializar() {
-    const hoje = obterPeriodoAtual();
+function gerarPeriodosAnteriores(quantidade = 12) {
+    const periodos = [];
+    const atual = obterPeriodoAtual();
     
-    // Carregar meses configurados
-    const snapMeses = await mesesRef.once('value');
-    let meses = snapMeses.val() || [];
-    if (!Array.isArray(meses)) meses = [];
-    
-    // Se não existe o período atual, adicionar
-    if (!meses.includes(hoje)) {
-        meses.push(hoje);
-        // Ordenar
-        meses.sort();
-        await mesesRef.set(meses);
+    for (let i = 0; i < quantidade; i++) {
+        let mes = atual.mes - i;
+        let ano = atual.ano;
+        while (mes < 0) {
+            mes += 12;
+            ano--;
+        }
+        periodos.push({ ano, mes });
     }
+    
+    return periodos.map(p => periodoToString(p.ano, p.mes));
+}
+
+// ---- Inicialização ----
+async function inicializar() {
+    const periodosGerados = gerarPeriodosAnteriores();
+    
+    // Carregar períodos guardados
+    const snap = await periodosRef.once('value');
+    let periodosGuardados = snap.val() || [];
+    if (!Array.isArray(periodosGuardados)) periodosGuardados = [];
+    
+    // Juntar todos os períodos (gerados + guardados)
+    const todosPeriodos = [...new Set([...periodosGerados, ...periodosGuardados])];
+    todosPeriodos.sort().reverse(); // Mais recente primeiro
+    
+    // Guardar no Firebase
+    await periodosRef.set(todosPeriodos);
     
     // Preencher select
     const select = document.getElementById('monthSelect');
     select.innerHTML = '';
-    meses.forEach(m => {
+    todosPeriodos.forEach(p => {
         const opt = document.createElement('option');
-        opt.value = m;
-        opt.textContent = formatarPeriodo(m);
+        opt.value = p;
+        opt.textContent = formatarPeriodo(p);
         select.appendChild(opt);
     });
     
     // Selecionar período atual
-    periodoAtual = hoje;
-    select.value = periodoAtual;
+    periodoSelecionado = todosPeriodos[0];
+    select.value = periodoSelecionado;
     atualizarBadge();
     
     // Carregar vendas
@@ -279,7 +293,7 @@ async function carregarVendas() {
 function filtrarPorPeriodo() {
     vendasFiltradas = {};
     Object.entries(todasVendas).forEach(([key, venda]) => {
-        if (venda.periodo === periodoAtual) {
+        if (venda.periodo === periodoSelecionado) {
             vendasFiltradas[key] = venda;
         }
     });
@@ -288,8 +302,8 @@ function filtrarPorPeriodo() {
 
 function atualizarBadge() {
     const badge = document.getElementById('monthBadge');
-    const hoje = obterPeriodoAtual();
-    if (periodoAtual === hoje) {
+    const periodos = gerarPeriodosAnteriores(1);
+    if (periodoSelecionado === periodos[0]) {
         badge.textContent = '📌 Período atual';
         badge.className = 'current-badge';
     } else {
@@ -307,7 +321,6 @@ function renderizar() {
         lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
     }
     
-    // Ordenar: Vendido (1), Pendente (2), Recusado (3)
     const ordem = { 'Vendido': 1, 'Pendente': 2, 'Recusado': 3 };
     lista.sort((a, b) => (ordem[a.estado] || 99) - (ordem[b.estado] || 99));
 
@@ -340,7 +353,6 @@ function renderizar() {
             tbody.appendChild(tr);
         });
 
-        // Event listeners
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
@@ -365,7 +377,7 @@ function renderizar() {
         });
     }
 
-    // Atualizar totais (SOMA simples, sem multiplicação)
+    // Atualizar totais (SOMA simples)
     const valores = Object.values(vendasFiltradas);
     const totalPeriodo = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
     const vendidas = valores.filter(v => v.estado === 'Vendido');
@@ -401,51 +413,56 @@ function fecharModal() {
 // ---- Transição para novo período ----
 async function criarNovoPeriodo() {
     if (!confirm('🔄 Criar novo período de vendas?\n\n' +
-                 'Os pendentes serão copiados para o novo período.\n' +
-                 'Vendidos e recusados ficam no período atual.\n\n' +
+                 '• Os pendentes serão copiados para o novo período\n' +
+                 '• Vendidos e recusados ficam no período atual\n\n' +
                  'Continuar?')) {
         return;
     }
     
     const novoPeriodo = obterPeriodoAtual();
+    const novoPeriodoStr = periodoToString(novoPeriodo.ano, novoPeriodo.mes);
     
     // Verificar se já existe
-    const snap = await mesesRef.once('value');
-    let meses = snap.val() || [];
-    if (meses.includes(novoPeriodo)) {
+    const snap = await periodosRef.once('value');
+    let periodos = snap.val() || [];
+    if (periodos.includes(novoPeriodoStr)) {
         alert('Este período já existe! Selecione-o no menu.');
-        periodoAtual = novoPeriodo;
-        document.getElementById('monthSelect').value = novoPeriodo;
+        periodoSelecionado = novoPeriodoStr;
+        document.getElementById('monthSelect').value = novoPeriodoStr;
         atualizarBadge();
         filtrarPorPeriodo();
         return;
     }
     
-    // Copiar pendentes para o novo período
+    // Copiar pendentes
     const pendentes = Object.values(vendasFiltradas).filter(v => v.estado === 'Pendente');
     for (const v of pendentes) {
-        const novaVenda = { ...v, periodo: novoPeriodo, data: firebase.database.ServerValue.TIMESTAMP };
+        const novaVenda = { 
+            ...v, 
+            periodo: novoPeriodoStr, 
+            data: firebase.database.ServerValue.TIMESTAMP 
+        };
         await vendasRef.push(novaVenda);
     }
     
-    // Atualizar lista de meses
-    meses.push(novoPeriodo);
-    meses.sort();
-    await mesesRef.set(meses);
+    // Atualizar lista de períodos
+    periodos.push(novoPeriodoStr);
+    periodos.sort().reverse();
+    await periodosRef.set(periodos);
     
-    // Atualizar interface
-    periodoAtual = novoPeriodo;
+    // Atualizar select
     const select = document.getElementById('monthSelect');
     const opt = document.createElement('option');
-    opt.value = novoPeriodo;
-    opt.textContent = formatarPeriodo(novoPeriodo);
-    select.appendChild(opt);
-    select.value = novoPeriodo;
+    opt.value = novoPeriodoStr;
+    opt.textContent = formatarPeriodo(novoPeriodoStr);
+    select.insertBefore(opt, select.firstChild);
+    select.value = novoPeriodoStr;
+    
+    periodoSelecionado = novoPeriodoStr;
     atualizarBadge();
     await carregarVendas();
     
-    alert(`✅ Novo período criado: ${formatarPeriodo(novoPeriodo)}\n` +
-          `${pendentes.length} pendentes foram copiados.`);
+    alert(`✅ Novo período criado!\n${formatarPeriodo(novoPeriodoStr)}\n${pendentes.length} pendentes copiados.`);
 }
 
 // ---- Event listeners ----
@@ -456,7 +473,7 @@ document.getElementById('btnCancel').addEventListener('click', fecharModal);
 document.getElementById('searchInput').addEventListener('input', renderizar);
 
 document.getElementById('monthSelect').addEventListener('change', function() {
-    periodoAtual = this.value;
+    periodoSelecionado = this.value;
     atualizarBadge();
     filtrarPorPeriodo();
 });
@@ -475,7 +492,7 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
         pacote,
         preco: parseFloat(preco).toFixed(2),
         iban,
-        periodo: periodoAtual,
+        periodo: periodoSelecionado,
         estado: editKey ? vendasFiltradas[editKey].estado : 'Pendente',
         data: firebase.database.ServerValue.TIMESTAMP
     };

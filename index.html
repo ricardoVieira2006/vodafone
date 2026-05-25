@@ -13,15 +13,26 @@
         .header { background: #1a1a1a; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .header h1 { font-size: 1.8rem; }
         .header h1 span { color: #e60000; }
-        .btn { padding: 12px 22px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn { padding: 12px 22px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
         .btn-add { background: #e60000; color: white; }
         .btn-add:hover { background: #cc0000; }
-        .btn-danger { background: white; color: #e60000; border: 2px solid #e60000; }
+        .btn-outline { background: white; color: #e60000; border: 2px solid #e60000; }
+        .btn-danger { background: #fff5f5; color: #e60000; border: 2px solid #e60000; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; }
+        
+        /* Menu de meses */
+        .month-selector { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .month-selector label { font-weight: 600; margin-right: 10px; }
+        .month-selector select { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+        .month-badge { background: #e60000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        
         .search-bar input { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 30px; margin: 20px 0; font-size: 1rem; }
-        .summary { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .card { background: white; padding: 20px; border-radius: 12px; flex: 1; min-width: 140px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #e60000; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #e60000; }
         .card.success { border-left-color: #27ae60; }
         .card.warning { border-left-color: #f39c12; }
+        .card.info { border-left-color: #3498db; }
         .card h3 { font-size: 0.8rem; text-transform: uppercase; color: #777; margin-bottom: 8px; }
         .card .value { font-size: 1.8rem; font-weight: 700; }
         .card .sub { font-size: 0.9rem; color: #777; margin-top: 4px; }
@@ -33,28 +44,34 @@
         .package { color: #666; font-size: 0.9rem; }
         .price { font-weight: 600; }
         .commission { font-weight: 700; color: #27ae60; font-size: 1.1rem; }
-        .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
+        .badge { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; border: none; cursor: pointer; }
         .badge-pendente { background: #fff3cd; color: #856404; }
         .badge-vendido { background: #d4edda; color: #155724; }
         .badge-recusado { background: #f8d7da; color: #721c24; }
         .actions { display: flex; gap: 8px; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 6px; transition: 0.2s; }
+        .icon-btn:hover { background: #f0f0f0; }
         .icon-btn.edit { color: #3b82f6; }
         .icon-btn.delete { color: #ef4444; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.active { display: flex; }
         .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { margin: 0; }
-        .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; }
+        .modal-header h2 { margin: 0; font-size: 1.3rem; }
+        .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: #999; }
+        .close-btn:hover { color: #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #e60000; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
-        .error-banner { background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .transition-btn { margin-left: 10px; }
+        
         @media (max-width: 768px) {
+            .header h1 { font-size: 1.3rem; }
+            .month-selector { flex-direction: column; align-items: stretch; }
             thead { display: none; }
             tr { display: block; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: white; }
             td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; }
@@ -68,11 +85,18 @@
         <h1>📊 <span>Vodafone</span> Vendas Pro</h1>
         <div>
             <button class="btn btn-add" id="btnAdd">+ Nova proposta</button>
-            <button class="btn btn-danger" id="btnReset">🗑️ Limpar tudo</button>
+            <button class="btn btn-success transition-btn" id="btnTransition">🔄 Novo Mês</button>
         </div>
     </div>
 
-    <div id="errorBanner" class="error-banner"></div>
+    <!-- Seletor de mês -->
+    <div class="month-selector">
+        <label>📅 Período:</label>
+        <select id="monthSelect">
+            <option value="">Carregando meses...</option>
+        </select>
+        <span class="month-badge" id="currentMonthLabel">Mês atual</span>
+    </div>
 
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Pesquisar cliente...">
@@ -80,7 +104,7 @@
 
     <div class="summary">
         <div class="card">
-            <h3>Total Geral</h3>
+            <h3>Total do Mês</h3>
             <div class="value" id="totalGeral">0,00 €</div>
             <div class="sub" id="totalGeralCount">0 propostas</div>
         </div>
@@ -94,21 +118,26 @@
             <div class="value" id="totalPendentes">0</div>
             <div class="sub">aguardando</div>
         </div>
+        <div class="card info">
+            <h3>Média/Venda</h3>
+            <div class="value" id="mediaVenda">0,00 €</div>
+            <div class="sub">por venda</div>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Comissão</th><th>Estado</th><th>Ações</th>
+                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Estado</th><th>Ações</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="6" class="empty-state">A carregar dados...</td></tr>
+            <tr><td colspan="5" class="empty-state">A carregar dados...</td></tr>
         </tbody>
     </table>
 </div>
 
-<!-- Modal -->
+<!-- Modal (igual) -->
 <div class="modal" id="modalVenda">
     <div class="modal-content">
         <div class="modal-header">
@@ -134,14 +163,13 @@
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-add">Guardar</button>
-                <button type="button" class="btn btn-danger" id="btnCancel">Cancelar</button>
+                <button type="button" class="btn btn-outline" id="btnCancel">Cancelar</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-// Configuração do Firebase (substitui se necessário)
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -155,30 +183,83 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const vendasRef = database.ref("vendas");
+const mesesRef = database.ref("config/meses");
 
-let vendas = {};
+let todasVendas = {};     // Todas as vendas (todos os meses)
+let vendasMesAtual = {};  // Vendas do mês selecionado
+let mesAtual = '';        // Mês selecionado (formato: YYYY-MM)
 let editKey = null;
+let editMonth = null;
 
-function calcComissao(preco) {
-    return parseFloat(preco) * 2;   // apenas dobro do preço
+// ---- Funções auxiliares ----
+function getMesAno() {
+    const agora = new Date();
+    return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function showError(msg) {
-    const banner = document.getElementById('errorBanner');
-    banner.textContent = '❌ ' + msg;
-    banner.style.display = 'block';
-    setTimeout(() => banner.style.display = 'none', 8000);
+function formatMesAno(mesAno) {
+    if (!mesAno) return '';
+    const [ano, mes] = mesAno.split('-');
+    const nomes = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    return `${nomes[parseInt(mes)]} de ${ano}`;
 }
 
+// ---- Inicialização ----
+async function carregarMeses() {
+    const snapshot = await mesesRef.once('value');
+    let meses = snapshot.val() || [];
+    if (!Array.isArray(meses)) meses = [];
+    
+    if (meses.length === 0) {
+        const mesInicial = getMesAno();
+        meses = [mesInicial];
+        await mesesRef.set(meses);
+    }
+    
+    const select = document.getElementById('monthSelect');
+    select.innerHTML = '';
+    meses.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = formatMesAno(m);
+        select.appendChild(opt);
+    });
+    
+    mesAtual = meses[meses.length - 1];
+    select.value = mesAtual;
+    document.getElementById('currentMonthLabel').textContent = 
+        mesAtual === getMesAno() ? '📌 Mês atual' : '📅 Histórico';
+    
+    await carregarDados();
+}
+
+async function carregarDados() {
+    const snapshot = await vendasRef.once('value');
+    todasVendas = snapshot.val() || {};
+    filtrarPorMes();
+}
+
+function filtrarPorMes() {
+    vendasMesAtual = {};
+    Object.entries(todasVendas).forEach(([key, venda]) => {
+        if (venda.mes === mesAtual) {
+            vendasMesAtual[key] = venda;
+        }
+    });
+    renderizar();
+}
+
+// ---- Renderização ----
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-    // 1. Converter objeto vendas em array
-    let lista = Object.entries(vendas).map(([key, val]) => ({ key, ...val }));
-    // 2. Filtrar pelo termo de pesquisa
+    let lista = Object.entries(vendasMesAtual).map(([key, val]) => ({ key, ...val }));
+    
     if (termo) {
         lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
     }
-    // 3. Ordenar: Vendido (1), Pendente (2), Recusado (3)
+    
+    // Ordenar: Vendido > Pendente > Recusado
     const ordem = { 'Vendido': 1, 'Pendente': 2, 'Recusado': 3 };
     lista.sort((a, b) => (ordem[a.estado] || 99) - (ordem[b.estado] || 99));
 
@@ -186,16 +267,14 @@ function renderizar() {
     tbody.innerHTML = '';
 
     if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta encontrada</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhuma proposta neste mês</td></tr>';
     } else {
         lista.forEach(v => {
-            const comissao = calcComissao(v.preco);
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td data-label="Cliente"><span class="client-name">${v.nome}</span></td>
                 <td data-label="Pacote"><span class="package">${v.pacote}</span></td>
                 <td data-label="Preço"><span class="price">€${parseFloat(v.preco).toFixed(2)}</span></td>
-                <td data-label="Comissão"><span class="commission">€${comissao.toFixed(2)}</span></td>
                 <td data-label="Estado">
                     <select class="badge ${v.estado === 'Vendido' ? 'badge-vendido' : (v.estado === 'Recusado' ? 'badge-recusado' : 'badge-pendente')}" data-key="${v.key}">
                         <option value="Pendente" ${v.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
@@ -213,47 +292,48 @@ function renderizar() {
             tbody.appendChild(tr);
         });
 
-        // Listener para editar
+        // Event listeners
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
-                const v = vendas[key];
+                const v = vendasMesAtual[key];
                 if (v) abrirModal(key, v);
             });
         });
-        // Listener para eliminar
         document.querySelectorAll('.icon-btn.delete').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const key = btn.dataset.key;
                 if (confirm('Eliminar esta proposta?')) {
-                    await vendasRef.child(key).remove().catch(e => showError(e.message));
+                    await vendasRef.child(key).remove();
                 }
             });
         });
-        // Listener para mudar estado via select
         document.querySelectorAll('.badge').forEach(select => {
             select.addEventListener('change', async function() {
                 const key = this.dataset.key;
                 const novoEstado = this.value;
-                await vendasRef.child(key).update({ estado: novoEstado }).catch(e => showError(e.message));
+                await vendasRef.child(key).update({ estado: novoEstado });
             });
         });
     }
 
-    // Atualizar contagens e totais
-    const todas = Object.values(vendas);
-    const totalG = todas.reduce((s, v) => s + calcComissao(v.preco), 0);
-    const vendidas = todas.filter(v => v.estado === 'Vendido');
-    const pendentes = todas.filter(v => v.estado === 'Pendente');
-    const totalV = vendidas.reduce((s, v) => s + calcComissao(v.preco), 0);
+    // Atualizar totais (apenas soma, sem multiplicar)
+    const valores = Object.values(vendasMesAtual);
+    const totalG = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
+    const vendidas = valores.filter(v => v.estado === 'Vendido');
+    const pendentes = valores.filter(v => v.estado === 'Pendente');
+    const totalV = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
+    const media = vendidas.length > 0 ? totalV / vendidas.length : 0;
 
     document.getElementById('totalGeral').textContent = totalG.toFixed(2) + ' €';
-    document.getElementById('totalGeralCount').textContent = todas.length + ' proposta(s)';
+    document.getElementById('totalGeralCount').textContent = valores.length + ' proposta(s)';
     document.getElementById('totalVendido').textContent = totalV.toFixed(2) + ' €';
     document.getElementById('totalVendidoCount').textContent = vendidas.length + ' vendida(s)';
     document.getElementById('totalPendentes').textContent = pendentes.length;
+    document.getElementById('mediaVenda').textContent = media.toFixed(2) + ' €';
 }
 
+// ---- Modal ----
 function abrirModal(key = null, venda = null) {
     editKey = key;
     document.getElementById('modalTitle').textContent = key ? 'Editar Proposta' : 'Nova Proposta';
@@ -262,6 +342,7 @@ function abrirModal(key = null, venda = null) {
     document.getElementById('preco').value = venda ? venda.preco : '';
     document.getElementById('iban').value = venda ? (venda.iban || '') : '';
     document.getElementById('modalVenda').classList.add('active');
+    document.getElementById('nome').focus();
 }
 
 function fecharModal() {
@@ -269,24 +350,56 @@ function fecharModal() {
     editKey = null;
 }
 
-// Escuta da base de dados em tempo real
-vendasRef.on('value', snapshot => {
-    vendas = snapshot.val() || {};
-    renderizar();
-}, error => {
-    showError('Erro ao carregar dados: ' + error.message);
-    document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Falha de ligação</td></tr>';
-});
-
-document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
-document.getElementById('btnReset').addEventListener('click', async () => {
-    if (confirm('⚠️ Apagar TODAS as vendas?')) {
-        await vendasRef.remove().catch(e => showError(e.message));
+// ---- Transição de mês ----
+async function transitarMes() {
+    if (!confirm('🔄 Criar novo mês?\n\nOs pendentes serão copiados para o novo mês.\nAs vendas e recusados ficam no mês atual.\n\nContinuar?')) {
+        return;
     }
-});
+    
+    const novoMes = getMesAno();
+    
+    // Verificar se já existe
+    const snapshot = await mesesRef.once('value');
+    let meses = snapshot.val() || [];
+    if (meses.includes(novoMes)) {
+        alert('O mês atual já existe! Selecione-o no menu.');
+        return;
+    }
+    
+    // Copiar pendentes para o novo mês
+    const pendentes = Object.values(vendasMesAtual).filter(v => v.estado === 'Pendente');
+    for (const v of pendentes) {
+        const novaVenda = { ...v, mes: novoMes, data: firebase.database.ServerValue.TIMESTAMP };
+        await vendasRef.push(novaVenda);
+    }
+    
+    // Atualizar lista de meses
+    meses.push(novoMes);
+    await mesesRef.set(meses);
+    
+    // Recarregar
+    mesAtual = novoMes;
+    document.getElementById('monthSelect').value = novoMes;
+    document.getElementById('currentMonthLabel').textContent = '📌 Mês atual';
+    await carregarDados();
+    
+    alert(`✅ Novo mês criado: ${formatMesAno(novoMes)}\n${pendentes.length} pendentes foram copiados.`);
+}
+
+// ---- Eventos ----
+document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
+document.getElementById('btnTransition').addEventListener('click', transitarMes);
 document.getElementById('closeModal').addEventListener('click', fecharModal);
 document.getElementById('btnCancel').addEventListener('click', fecharModal);
 document.getElementById('searchInput').addEventListener('input', renderizar);
+
+document.getElementById('monthSelect').addEventListener('change', function() {
+    mesAtual = this.value;
+    document.getElementById('currentMonthLabel').textContent = 
+        mesAtual === getMesAno() ? '📌 Mês atual' : '📅 Histórico';
+    filtrarPorMes();
+});
+
 document.getElementById('formVenda').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
@@ -301,7 +414,8 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
         pacote,
         preco: parseFloat(preco).toFixed(2),
         iban,
-        estado: editKey ? vendas[editKey].estado : 'Pendente',
+        mes: mesAtual,
+        estado: editKey ? vendasMesAtual[editKey].estado : 'Pendente',
         data: firebase.database.ServerValue.TIMESTAMP
     };
 
@@ -312,14 +426,23 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
             await vendasRef.push(dados);
         }
         fecharModal();
-    } catch (e) {
-        showError('Erro ao guardar: ' + e.message);
+    } catch (error) {
+        alert('Erro ao guardar: ' + error.message);
     }
 });
 
 window.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVenda')) fecharModal();
 });
+
+// Escuta em tempo real
+vendasRef.on('value', snapshot => {
+    todasVendas = snapshot.val() || {};
+    filtrarPorMes();
+});
+
+// Inicialização
+carregarMeses();
 </script>
 </body>
 </html>

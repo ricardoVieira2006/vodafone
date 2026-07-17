@@ -19,6 +19,8 @@
         .btn-outline { background: white; color: #e60000; border: 2px solid #e60000; }
         .btn-success { background: #27ae60; color: white; }
         .btn-success:hover { background: #219a52; }
+        .btn-calendar { background: #4285f4; color: white; }
+        .btn-calendar:hover { background: #3367d6; }
         
         .month-selector { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .month-selector label { font-weight: 600; white-space: nowrap; }
@@ -42,33 +44,40 @@
         .client-name { font-weight: 600; }
         .package { color: #666; font-size: 0.9rem; }
         .price { font-weight: 600; }
+        .observacao { color: #666; font-size: 0.85rem; font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; border: none; cursor: pointer; }
         .badge-pendente { background: #fff3cd; color: #856404; }
         .badge-vendido { background: #d4edda; color: #155724; }
         .badge-recusado { background: #f8d7da; color: #721c24; }
-        .actions { display: flex; gap: 8px; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 6px; transition: 0.2s; }
         .icon-btn:hover { background: #f0f0f0; }
         .icon-btn.edit { color: #3b82f6; }
         .icon-btn.delete { color: #ef4444; }
+        .icon-btn.calendar { color: #4285f4; font-size: 1.1rem; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; }
+        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 550px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { margin: 0; font-size: 1.3rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: #999; }
         .close-btn:hover { color: #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #e60000; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #e60000; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
+        .calendar-link { display: inline-flex; align-items: center; gap: 5px; color: #4285f4; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .calendar-link:hover { text-decoration: underline; }
         
         @media (max-width: 768px) {
             .header h1 { font-size: 1.3rem; }
             .month-selector { flex-direction: column; align-items: stretch; }
+            .form-row { grid-template-columns: 1fr; }
             thead { display: none; }
             tr { display: block; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 12px; padding: 15px; background: white; }
             td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; }
@@ -99,36 +108,36 @@
     </div>
 
     <div class="summary">
-        <div class="card">
-            <h3>Total do Período</h3>
-            <div class="value" id="totalPeriodo">0,00 €</div>
-            <div class="sub" id="totalPropostas">0 propostas</div>
+        <div class="card warning">
+            <h3>Total Pendentes</h3>
+            <div class="value" id="totalPendentes">0,00 €</div>
+            <div class="sub" id="numPendentes">0 pendentes</div>
         </div>
         <div class="card success">
             <h3>Total Vendido</h3>
             <div class="value" id="totalVendido">0,00 €</div>
-            <div class="sub" id="totalVendidas">0 vendidas</div>
-        </div>
-        <div class="card warning">
-            <h3>Pendentes</h3>
-            <div class="value" id="totalPendentes">0</div>
-            <div class="sub">aguardando</div>
+            <div class="sub" id="numVendidas">0 vendidas</div>
         </div>
         <div class="card info">
-            <h3>Média por Venda</h3>
-            <div class="value" id="mediaVenda">0,00 €</div>
-            <div class="sub">por venda</div>
+            <h3>Total Recusado</h3>
+            <div class="value" id="totalRecusado">0,00 €</div>
+            <div class="sub" id="numRecusadas">0 recusadas</div>
+        </div>
+        <div class="card">
+            <h3>Total Geral</h3>
+            <div class="value" id="totalGeral">0,00 €</div>
+            <div class="sub" id="numTotal">0 propostas</div>
         </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Estado</th><th>Ações</th>
+                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Observação</th><th>Estado</th><th>Ações</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="5" class="empty-state">Carregando dados...</td></tr>
+            <tr><td colspan="6" class="empty-state">Carregando dados...</td></tr>
         </tbody>
     </table>
 </div>
@@ -141,20 +150,32 @@
         </div>
         <form id="formVenda">
             <div class="form-group">
-                <label>Nome do cliente</label>
+                <label>Nome do cliente *</label>
                 <input type="text" id="nome" required>
             </div>
             <div class="form-group">
-                <label>Pacote / Descrição</label>
+                <label>Pacote / Descrição *</label>
                 <textarea id="pacote" required></textarea>
             </div>
             <div class="form-group">
-                <label>Preço (€)</label>
+                <label>Preço (€) *</label>
                 <input type="number" id="preco" step="0.01" required>
             </div>
             <div class="form-group">
                 <label>IBAN</label>
                 <input type="text" id="iban">
+            </div>
+            <div class="form-group">
+                <label>📝 Observações</label>
+                <textarea id="observacao" placeholder="Notas importantes sobre este cliente..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>📅 Agendamento Google Calendar</label>
+                <div class="form-row">
+                    <input type="date" id="dataAgendamento">
+                    <input type="time" id="horaAgendamento" value="10:00">
+                </div>
+                <small style="color:#666; margin-top:5px; display:block;">Define data e hora para criar link do Google Calendar</small>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-add">Guardar</button>
@@ -190,14 +211,12 @@ let editKey = null;
 function obterPeriodoAtual() {
     const hoje = new Date();
     const dia = hoje.getDate();
-    const mes = hoje.getMonth(); // 0-11
+    const mes = hoje.getMonth();
     const ano = hoje.getFullYear();
     
     if (dia >= 25) {
-        // Período do dia 25 deste mês até 26 do próximo
         return { ano, mes };
     } else {
-        // Período do dia 25 do mês passado até 26 deste mês
         let mesRef = mes - 1;
         let anoRef = ano;
         if (mesRef < 0) {
@@ -218,17 +237,12 @@ function formatarPeriodo(periodoStr) {
     const nomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
     const mesInt = parseInt(mes) - 1;
-    
-    // Calcular datas
-    const dataInicio = new Date(parseInt(ano), mesInt, 25);
     let mesFim = mesInt + 1;
     let anoFim = parseInt(ano);
     if (mesFim > 11) {
         mesFim = 0;
         anoFim++;
     }
-    const dataFim = new Date(anoFim, mesFim, 26);
-    
     return `25 ${nomes[mesInt]} ${ano} → 26 ${nomes[mesFim]} ${anoFim}`;
 }
 
@@ -249,23 +263,40 @@ function gerarPeriodosAnteriores(quantidade = 12) {
     return periodos.map(p => periodoToString(p.ano, p.mes));
 }
 
+function gerarLinkGoogleCalendar(titulo, data, hora, duracaoHoras = 1) {
+    if (!data || !hora) return '';
+    
+    const dataHoraInicio = new Date(`${data}T${hora}:00`);
+    const dataHoraFim = new Date(dataHoraInicio.getTime() + duracaoHoras * 60 * 60 * 1000);
+    
+    const formatarData = (d) => {
+        return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    };
+    
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: titulo,
+        dates: `${formatarData(dataHoraInicio)}/${formatarData(dataHoraFim)}`,
+        details: `Agendamento de fecho de venda Vodafone`,
+        ctz: 'Europe/Lisbon'
+    });
+    
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 // ---- Inicialização ----
 async function inicializar() {
     const periodosGerados = gerarPeriodosAnteriores();
     
-    // Carregar períodos guardados
     const snap = await periodosRef.once('value');
     let periodosGuardados = snap.val() || [];
     if (!Array.isArray(periodosGuardados)) periodosGuardados = [];
     
-    // Juntar todos os períodos (gerados + guardados)
     const todosPeriodos = [...new Set([...periodosGerados, ...periodosGuardados])];
-    todosPeriodos.sort().reverse(); // Mais recente primeiro
+    todosPeriodos.sort().reverse();
     
-    // Guardar no Firebase
     await periodosRef.set(todosPeriodos);
     
-    // Preencher select
     const select = document.getElementById('monthSelect');
     select.innerHTML = '';
     todosPeriodos.forEach(p => {
@@ -275,12 +306,10 @@ async function inicializar() {
         select.appendChild(opt);
     });
     
-    // Selecionar período atual
     periodoSelecionado = todosPeriodos[0];
     select.value = periodoSelecionado;
     atualizarBadge();
     
-    // Carregar vendas
     await carregarVendas();
 }
 
@@ -328,14 +357,20 @@ function renderizar() {
     tbody.innerHTML = '';
 
     if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhuma proposta neste período</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta neste período</td></tr>';
     } else {
         lista.forEach(v => {
+            const observacao = v.observacao || '';
+            const temAgendamento = v.dataAgendamento && v.horaAgendamento;
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td data-label="Cliente"><span class="client-name">${v.nome}</span></td>
                 <td data-label="Pacote"><span class="package">${v.pacote}</span></td>
                 <td data-label="Preço"><span class="price">€${parseFloat(v.preco).toFixed(2)}</span></td>
+                <td data-label="Observação">
+                    <span class="observacao" title="${observacao}">${observacao || '-'}</span>
+                </td>
                 <td data-label="Estado">
                     <select class="badge ${v.estado === 'Vendido' ? 'badge-vendido' : (v.estado === 'Recusado' ? 'badge-recusado' : 'badge-pendente')}" data-key="${v.key}">
                         <option value="Pendente" ${v.estado === 'Pendente' ? 'selected' : ''}>⏳ Pendente</option>
@@ -345,6 +380,14 @@ function renderizar() {
                 </td>
                 <td data-label="Ações">
                     <div class="actions">
+                        ${temAgendamento ? 
+                            `<a href="${gerarLinkGoogleCalendar(v.nome, v.dataAgendamento, v.horaAgendamento)}" 
+                                target="_blank" 
+                                class="calendar-link" 
+                                title="Agendar no Google Calendar">
+                                📅
+                            </a>` : 
+                            ''}
                         <button class="icon-btn edit" data-key="${v.key}">✏️</button>
                         <button class="icon-btn delete" data-key="${v.key}">🗑️</button>
                     </div>
@@ -377,20 +420,25 @@ function renderizar() {
         });
     }
 
-    // Atualizar totais (SOMA simples)
+    // Atualizar totais
     const valores = Object.values(vendasFiltradas);
-    const totalPeriodo = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const vendidas = valores.filter(v => v.estado === 'Vendido');
     const pendentes = valores.filter(v => v.estado === 'Pendente');
+    const vendidas = valores.filter(v => v.estado === 'Vendido');
+    const recusadas = valores.filter(v => v.estado === 'Recusado');
+    
+    const totalPendentes = pendentes.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
     const totalVendido = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const media = vendidas.length > 0 ? totalVendido / vendidas.length : 0;
+    const totalRecusado = recusadas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
+    const totalGeral = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
 
-    document.getElementById('totalPeriodo').textContent = totalPeriodo.toFixed(2) + ' €';
-    document.getElementById('totalPropostas').textContent = valores.length + ' proposta(s)';
+    document.getElementById('totalPendentes').textContent = totalPendentes.toFixed(2) + ' €';
+    document.getElementById('numPendentes').textContent = pendentes.length + ' pendentes';
     document.getElementById('totalVendido').textContent = totalVendido.toFixed(2) + ' €';
-    document.getElementById('totalVendidas').textContent = vendidas.length + ' vendida(s)';
-    document.getElementById('totalPendentes').textContent = pendentes.length;
-    document.getElementById('mediaVenda').textContent = media.toFixed(2) + ' €';
+    document.getElementById('numVendidas').textContent = vendidas.length + ' vendidas';
+    document.getElementById('totalRecusado').textContent = totalRecusado.toFixed(2) + ' €';
+    document.getElementById('numRecusadas').textContent = recusadas.length + ' recusadas';
+    document.getElementById('totalGeral').textContent = totalGeral.toFixed(2) + ' €';
+    document.getElementById('numTotal').textContent = valores.length + ' propostas';
 }
 
 // ---- Modal ----
@@ -401,6 +449,9 @@ function abrirModal(key = null, venda = null) {
     document.getElementById('pacote').value = venda ? venda.pacote : '';
     document.getElementById('preco').value = venda ? venda.preco : '';
     document.getElementById('iban').value = venda ? (venda.iban || '') : '';
+    document.getElementById('observacao').value = venda ? (venda.observacao || '') : '';
+    document.getElementById('dataAgendamento').value = venda ? (venda.dataAgendamento || '') : '';
+    document.getElementById('horaAgendamento').value = venda ? (venda.horaAgendamento || '10:00') : '10:00';
     document.getElementById('modalVenda').classList.add('active');
     document.getElementById('nome').focus();
 }
@@ -422,7 +473,6 @@ async function criarNovoPeriodo() {
     const novoPeriodo = obterPeriodoAtual();
     const novoPeriodoStr = periodoToString(novoPeriodo.ano, novoPeriodo.mes);
     
-    // Verificar se já existe
     const snap = await periodosRef.once('value');
     let periodos = snap.val() || [];
     if (periodos.includes(novoPeriodoStr)) {
@@ -434,7 +484,6 @@ async function criarNovoPeriodo() {
         return;
     }
     
-    // Copiar pendentes
     const pendentes = Object.values(vendasFiltradas).filter(v => v.estado === 'Pendente');
     for (const v of pendentes) {
         const novaVenda = { 
@@ -445,12 +494,10 @@ async function criarNovoPeriodo() {
         await vendasRef.push(novaVenda);
     }
     
-    // Atualizar lista de períodos
     periodos.push(novoPeriodoStr);
     periodos.sort().reverse();
     await periodosRef.set(periodos);
     
-    // Atualizar select
     const select = document.getElementById('monthSelect');
     const opt = document.createElement('option');
     opt.value = novoPeriodoStr;
@@ -484,6 +531,9 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     const pacote = document.getElementById('pacote').value.trim();
     const preco = document.getElementById('preco').value;
     const iban = document.getElementById('iban').value.trim();
+    const observacao = document.getElementById('observacao').value.trim();
+    const dataAgendamento = document.getElementById('dataAgendamento').value;
+    const horaAgendamento = document.getElementById('horaAgendamento').value;
 
     if (!nome || !pacote || !preco) return alert('Preencha os campos obrigatórios.');
 
@@ -492,6 +542,9 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
         pacote,
         preco: parseFloat(preco).toFixed(2),
         iban,
+        observacao,
+        dataAgendamento,
+        horaAgendamento,
         periodo: periodoSelecionado,
         estado: editKey ? vendasFiltradas[editKey].estado : 'Pendente',
         data: firebase.database.ServerValue.TIMESTAMP
@@ -513,13 +566,11 @@ window.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVenda')) fecharModal();
 });
 
-// Escuta em tempo real
 vendasRef.on('value', snapshot => {
     todasVendas = snapshot.val() || {};
     filtrarPorPeriodo();
 });
 
-// Inicializar
 inicializar();
 </script>
 </body>

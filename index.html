@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vodafone Vendas Pro</title>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; padding: 20px; }
@@ -19,8 +25,13 @@
         .btn-outline { background: white; color: #e60000; border: 2px solid #e60000; }
         .btn-success { background: #27ae60; color: white; }
         .btn-success:hover { background: #219a52; }
-        .btn-calendar { background: #4285f4; color: white; }
-        .btn-calendar:hover { background: #3367d6; }
+        .btn-google { background: #4285f4; color: white; }
+        .btn-google:hover { background: #3367d6; }
+        
+        .auth-section { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .auth-status { display: flex; align-items: center; gap: 10px; }
+        .auth-dot { width: 12px; height: 12px; border-radius: 50%; background: #e74c3c; display: inline-block; }
+        .auth-dot.connected { background: #27ae60; }
         
         .month-selector { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .month-selector label { font-weight: 600; white-space: nowrap; }
@@ -29,50 +40,51 @@
         .history-badge { background: #3498db; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
         
         .search-bar input { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 30px; margin: 20px 0; font-size: 1rem; }
-        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #e60000; }
         .card.success { border-left-color: #27ae60; }
         .card.warning { border-left-color: #f39c12; }
         .card.info { border-left-color: #3498db; }
         .card h3 { font-size: 0.8rem; text-transform: uppercase; color: #777; margin-bottom: 8px; }
-        .card .value { font-size: 1.8rem; font-weight: 700; }
-        .card .sub { font-size: 0.9rem; color: #777; margin-top: 4px; }
+        .card .value { font-size: 1.6rem; font-weight: 700; }
+        .card .sub { font-size: 0.85rem; color: #777; margin-top: 4px; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eee; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #fafafa; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: #666; }
         tr:hover { background: #f9f9f9; }
         .client-name { font-weight: 600; }
         .package { color: #666; font-size: 0.9rem; }
         .price { font-weight: 600; }
-        .observacao { color: #666; font-size: 0.85rem; font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; border: none; cursor: pointer; }
+        .observacao { color: #666; font-size: 0.85rem; font-style: italic; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .agendamento { font-size: 0.85rem; color: #4285f4; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; border: none; cursor: pointer; }
         .badge-pendente { background: #fff3cd; color: #856404; }
         .badge-vendido { background: #d4edda; color: #155724; }
         .badge-recusado { background: #f8d7da; color: #721c24; }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .icon-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 6px; transition: 0.2s; }
         .icon-btn:hover { background: #f0f0f0; }
         .icon-btn.edit { color: #3b82f6; }
         .icon-btn.delete { color: #ef4444; }
-        .icon-btn.calendar { color: #4285f4; font-size: 1.1rem; }
+        .icon-btn.calendar { color: #4285f4; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 550px; }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { margin: 0; font-size: 1.3rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: #999; }
-        .close-btn:hover { color: #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #e60000; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group textarea { resize: vertical; min-height: 70px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
         .form-actions button { flex: 1; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
-        .calendar-link { display: inline-flex; align-items: center; gap: 5px; color: #4285f4; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-        .calendar-link:hover { text-decoration: underline; }
+        .message { padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .message.success { background: #d4edda; color: #155724; display: block; }
+        .message.error { background: #f8d7da; color: #721c24; display: block; }
         
         @media (max-width: 768px) {
             .header h1 { font-size: 1.3rem; }
@@ -95,11 +107,23 @@
         </div>
     </div>
 
+    <!-- Autenticação Google -->
+    <div class="auth-section">
+        <div class="auth-status">
+            <span class="auth-dot" id="authDot"></span>
+            <span id="authText">Não conectado ao Google Calendar</span>
+        </div>
+        <div>
+            <button class="btn btn-google" id="btnLogin">🔗 Conectar Google Calendar</button>
+            <button class="btn btn-outline" id="btnLogout" style="display:none;">Desconectar</button>
+        </div>
+    </div>
+
+    <div id="messageBox" class="message"></div>
+
     <div class="month-selector">
-        <label>📅 Selecionar período:</label>
-        <select id="monthSelect">
-            <option>Carregando períodos...</option>
-        </select>
+        <label>📅 Período:</label>
+        <select id="monthSelect"><option>Carregando...</option></select>
         <span id="monthBadge" class="current-badge">Período atual</span>
     </div>
 
@@ -109,39 +133,40 @@
 
     <div class="summary">
         <div class="card warning">
-            <h3>Total Pendentes</h3>
+            <h3>Pendentes</h3>
             <div class="value" id="totalPendentes">0,00 €</div>
-            <div class="sub" id="numPendentes">0 pendentes</div>
+            <div class="sub" id="numPendentes">0</div>
         </div>
         <div class="card success">
-            <h3>Total Vendido</h3>
+            <h3>Vendido</h3>
             <div class="value" id="totalVendido">0,00 €</div>
-            <div class="sub" id="numVendidas">0 vendidas</div>
+            <div class="sub" id="numVendidas">0</div>
         </div>
         <div class="card info">
-            <h3>Total Recusado</h3>
+            <h3>Recusado</h3>
             <div class="value" id="totalRecusado">0,00 €</div>
-            <div class="sub" id="numRecusadas">0 recusadas</div>
+            <div class="sub" id="numRecusadas">0</div>
         </div>
         <div class="card">
-            <h3>Total Geral</h3>
+            <h3>Geral</h3>
             <div class="value" id="totalGeral">0,00 €</div>
-            <div class="sub" id="numTotal">0 propostas</div>
+            <div class="sub" id="numTotal">0</div>
         </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Observação</th><th>Estado</th><th>Ações</th>
+                <th>Cliente</th><th>Pacote</th><th>Preço</th><th>Obs.</th><th>Agend.</th><th>Estado</th><th>Ações</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <tr><td colspan="6" class="empty-state">Carregando dados...</td></tr>
+            <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
         </tbody>
     </table>
 </div>
 
+<!-- Modal -->
 <div class="modal" id="modalVenda">
     <div class="modal-content">
         <div class="modal-header">
@@ -149,36 +174,21 @@
             <button class="close-btn" id="closeModal">&times;</button>
         </div>
         <form id="formVenda">
+            <div class="form-group"><label>Nome *</label><input type="text" id="nome" required></div>
+            <div class="form-group"><label>Pacote *</label><textarea id="pacote" required></textarea></div>
+            <div class="form-group"><label>Preço (€) *</label><input type="number" id="preco" step="0.01" required></div>
+            <div class="form-group"><label>IBAN</label><input type="text" id="iban"></div>
+            <div class="form-group"><label>📝 Observações</label><textarea id="observacao" placeholder="Notas sobre o cliente..."></textarea></div>
             <div class="form-group">
-                <label>Nome do cliente *</label>
-                <input type="text" id="nome" required>
-            </div>
-            <div class="form-group">
-                <label>Pacote / Descrição *</label>
-                <textarea id="pacote" required></textarea>
-            </div>
-            <div class="form-group">
-                <label>Preço (€) *</label>
-                <input type="number" id="preco" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>IBAN</label>
-                <input type="text" id="iban">
-            </div>
-            <div class="form-group">
-                <label>📝 Observações</label>
-                <textarea id="observacao" placeholder="Notas importantes sobre este cliente..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>📅 Agendamento Google Calendar</label>
+                <label>📅 Agendar no Google Calendar</label>
                 <div class="form-row">
                     <input type="date" id="dataAgendamento">
                     <input type="time" id="horaAgendamento" value="10:00">
                 </div>
-                <small style="color:#666; margin-top:5px; display:block;">Define data e hora para criar link do Google Calendar</small>
+                <small style="color:#666; margin-top:5px; display:block;">O evento será criado automaticamente ao guardar</small>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-add">Guardar</button>
+                <button type="submit" class="btn btn-add">💾 Guardar e Agendar</button>
                 <button type="button" class="btn btn-outline" id="btnCancel">Cancelar</button>
             </div>
         </form>
@@ -186,7 +196,10 @@
 </div>
 
 <script>
-// Configuração Firebase
+// ============ CONFIGURAÇÕES ============
+const GOOGLE_CLIENT_ID = '358294168881-9rdjnm70ve3ffm3qm1fj4o16e2losbmq.apps.googleusercontent.com';
+const GOOGLE_API_KEY = 'AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y'; // Usando a mesma do Firebase
+
 const firebaseConfig = {
     apiKey: "AIzaSyB2po8yYRyj8cbodgXUOq24QzqR5dtvI5Y",
     authDomain: "vodafone-6ada2.firebaseapp.com",
@@ -206,25 +219,125 @@ let todasVendas = {};
 let vendasFiltradas = {};
 let periodoSelecionado = '';
 let editKey = null;
+let googleToken = null;
 
-// ---- Funções de data (período de 25 a 26) ----
+// ============ GOOGLE AUTH ============
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        auto_select: false
+    });
+};
+
+document.getElementById('btnLogin').addEventListener('click', () => {
+    const client = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar',
+        callback: (response) => {
+            if (response.access_token) {
+                googleToken = response.access_token;
+                document.getElementById('authDot').classList.add('connected');
+                document.getElementById('authText').textContent = '✅ Conectado ao Google Calendar';
+                document.getElementById('btnLogin').style.display = 'none';
+                document.getElementById('btnLogout').style.display = 'inline-block';
+                showMessage('✅ Conectado! Os agendamentos serão criados automaticamente.', 'success');
+            }
+        }
+    });
+    client.requestAccessToken();
+});
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+    googleToken = null;
+    document.getElementById('authDot').classList.remove('connected');
+    document.getElementById('authText').textContent = 'Não conectado ao Google Calendar';
+    document.getElementById('btnLogin').style.display = 'inline-block';
+    document.getElementById('btnLogout').style.display = 'none';
+    showMessage('Desconectado do Google Calendar', 'error');
+});
+
+function handleCredentialResponse(response) {
+    // Token de ID recebido (não usamos diretamente, usamos OAuth2)
+    console.log('Google ID Token recebido');
+}
+
+// ============ GOOGLE CALENDAR API ============
+async function criarEventoCalendar(nome, data, hora, observacao = '') {
+    if (!googleToken || !data || !hora) {
+        console.log('Sem token ou data/hora');
+        return null;
+    }
+    
+    try {
+        const [ano, mes, dia] = data.split('-');
+        const [h, m] = hora.split(':');
+        const dataInicio = new Date(ano, mes - 1, dia, parseInt(h), parseInt(m));
+        const dataFim = new Date(dataInicio.getTime() + 60 * 60 * 1000);
+        
+        const evento = {
+            summary: `🔴 Vodafone: ${nome}`,
+            description: `Cliente: ${nome}\nPacote: ${document.getElementById('pacote').value || ''}\nObservações: ${observacao || 'Nenhuma'}\n\n---\nCriado por Vodafone Vendas Pro`,
+            start: {
+                dateTime: dataInicio.toISOString(),
+                timeZone: 'Europe/Lisbon'
+            },
+            end: {
+                dateTime: dataFim.toISOString(),
+                timeZone: 'Europe/Lisbon'
+            },
+            reminders: {
+                useDefault: false,
+                overrides: [
+                    { method: 'popup', minutes: 30 },
+                    { method: 'popup', minutes: 60 }
+                ]
+            }
+        };
+        
+        const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${googleToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(evento)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('Erro ao criar evento:', error);
+            throw new Error(error.error?.message || 'Erro desconhecido');
+        }
+        
+        const eventoData = await response.json();
+        return eventoData.htmlLink;
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    }
+}
+
+// ============ FUNÇÕES AUXILIARES ============
+function showMessage(texto, tipo) {
+    const box = document.getElementById('messageBox');
+    box.textContent = texto;
+    box.className = 'message ' + tipo;
+    setTimeout(() => { box.className = 'message'; box.textContent = ''; }, 4000);
+}
+
 function obterPeriodoAtual() {
     const hoje = new Date();
     const dia = hoje.getDate();
     const mes = hoje.getMonth();
     const ano = hoje.getFullYear();
     
-    if (dia >= 25) {
-        return { ano, mes };
-    } else {
-        let mesRef = mes - 1;
-        let anoRef = ano;
-        if (mesRef < 0) {
-            mesRef = 11;
-            anoRef = ano - 1;
-        }
-        return { ano: anoRef, mes: mesRef };
-    }
+    if (dia >= 25) return { ano, mes };
+    
+    let mesRef = mes - 1;
+    let anoRef = ano;
+    if (mesRef < 0) { mesRef = 11; anoRef = ano - 1; }
+    return { ano: anoRef, mes: mesRef };
 }
 
 function periodoToString(ano, mes) {
@@ -239,62 +352,31 @@ function formatarPeriodo(periodoStr) {
     const mesInt = parseInt(mes) - 1;
     let mesFim = mesInt + 1;
     let anoFim = parseInt(ano);
-    if (mesFim > 11) {
-        mesFim = 0;
-        anoFim++;
-    }
+    if (mesFim > 11) { mesFim = 0; anoFim++; }
     return `25 ${nomes[mesInt]} ${ano} → 26 ${nomes[mesFim]} ${anoFim}`;
 }
 
-function gerarPeriodosAnteriores(quantidade = 12) {
+function gerarPeriodosAnteriores(qtd = 12) {
     const periodos = [];
     const atual = obterPeriodoAtual();
-    
-    for (let i = 0; i < quantidade; i++) {
+    for (let i = 0; i < qtd; i++) {
         let mes = atual.mes - i;
         let ano = atual.ano;
-        while (mes < 0) {
-            mes += 12;
-            ano--;
-        }
+        while (mes < 0) { mes += 12; ano--; }
         periodos.push({ ano, mes });
     }
-    
     return periodos.map(p => periodoToString(p.ano, p.mes));
 }
 
-function gerarLinkGoogleCalendar(titulo, data, hora, duracaoHoras = 1) {
-    if (!data || !hora) return '';
-    
-    const dataHoraInicio = new Date(`${data}T${hora}:00`);
-    const dataHoraFim = new Date(dataHoraInicio.getTime() + duracaoHoras * 60 * 60 * 1000);
-    
-    const formatarData = (d) => {
-        return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    };
-    
-    const params = new URLSearchParams({
-        action: 'TEMPLATE',
-        text: titulo,
-        dates: `${formatarData(dataHoraInicio)}/${formatarData(dataHoraFim)}`,
-        details: `Agendamento de fecho de venda Vodafone`,
-        ctz: 'Europe/Lisbon'
-    });
-    
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-// ---- Inicialização ----
+// ============ INICIALIZAÇÃO ============
 async function inicializar() {
     const periodosGerados = gerarPeriodosAnteriores();
-    
     const snap = await periodosRef.once('value');
     let periodosGuardados = snap.val() || [];
     if (!Array.isArray(periodosGuardados)) periodosGuardados = [];
     
     const todosPeriodos = [...new Set([...periodosGerados, ...periodosGuardados])];
     todosPeriodos.sort().reverse();
-    
     await periodosRef.set(todosPeriodos);
     
     const select = document.getElementById('monthSelect');
@@ -309,7 +391,6 @@ async function inicializar() {
     periodoSelecionado = todosPeriodos[0];
     select.value = periodoSelecionado;
     atualizarBadge();
-    
     await carregarVendas();
 }
 
@@ -322,9 +403,7 @@ async function carregarVendas() {
 function filtrarPorPeriodo() {
     vendasFiltradas = {};
     Object.entries(todasVendas).forEach(([key, venda]) => {
-        if (venda.periodo === periodoSelecionado) {
-            vendasFiltradas[key] = venda;
-        }
+        if (venda.periodo === periodoSelecionado) vendasFiltradas[key] = venda;
     });
     renderizar();
 }
@@ -341,14 +420,11 @@ function atualizarBadge() {
     }
 }
 
-// ---- Renderizar tabela ----
+// ============ RENDERIZAR ============
 function renderizar() {
     const termo = document.getElementById('searchInput').value.toLowerCase().trim();
     let lista = Object.entries(vendasFiltradas).map(([key, val]) => ({ key, ...val }));
-    
-    if (termo) {
-        lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
-    }
+    if (termo) lista = lista.filter(v => v.nome.toLowerCase().includes(termo));
     
     const ordem = { 'Vendido': 1, 'Pendente': 2, 'Recusado': 3 };
     lista.sort((a, b) => (ordem[a.estado] || 99) - (ordem[b.estado] || 99));
@@ -357,19 +433,22 @@ function renderizar() {
     tbody.innerHTML = '';
 
     if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma proposta neste período</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma proposta neste período</td></tr>';
     } else {
         lista.forEach(v => {
-            const observacao = v.observacao || '';
-            const temAgendamento = v.dataAgendamento && v.horaAgendamento;
+            const obs = v.observacao || '';
+            const temAgend = v.dataAgendamento && v.horaAgendamento;
+            const agendTexto = temAgend ? `${v.dataAgendamento.split('-').reverse().join('/')} ${v.horaAgendamento}` : '-';
+            const linkCal = v.linkCalendar || '';
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td data-label="Cliente"><span class="client-name">${v.nome}</span></td>
                 <td data-label="Pacote"><span class="package">${v.pacote}</span></td>
                 <td data-label="Preço"><span class="price">€${parseFloat(v.preco).toFixed(2)}</span></td>
-                <td data-label="Observação">
-                    <span class="observacao" title="${observacao}">${observacao || '-'}</span>
+                <td data-label="Obs."><span class="observacao" title="${obs}">${obs || '-'}</span></td>
+                <td data-label="Agend.">
+                    ${temAgend ? `<span class="agendamento">📅 ${agendTexto}</span>${linkCal ? `<br><a href="${linkCal}" target="_blank" style="font-size:0.75rem; color:#4285f4;">Ver no Calendar</a>` : ''}` : '<span style="color:#999;">-</span>'}
                 </td>
                 <td data-label="Estado">
                     <select class="badge ${v.estado === 'Vendido' ? 'badge-vendido' : (v.estado === 'Recusado' ? 'badge-recusado' : 'badge-pendente')}" data-key="${v.key}">
@@ -380,14 +459,6 @@ function renderizar() {
                 </td>
                 <td data-label="Ações">
                     <div class="actions">
-                        ${temAgendamento ? 
-                            `<a href="${gerarLinkGoogleCalendar(v.nome, v.dataAgendamento, v.horaAgendamento)}" 
-                                target="_blank" 
-                                class="calendar-link" 
-                                title="Agendar no Google Calendar">
-                                📅
-                            </a>` : 
-                            ''}
                         <button class="icon-btn edit" data-key="${v.key}">✏️</button>
                         <button class="icon-btn delete" data-key="${v.key}">🗑️</button>
                     </div>
@@ -398,50 +469,38 @@ function renderizar() {
 
         document.querySelectorAll('.icon-btn.edit').forEach(btn => {
             btn.addEventListener('click', () => {
-                const key = btn.dataset.key;
-                const v = vendasFiltradas[key];
-                if (v) abrirModal(key, v);
+                const v = vendasFiltradas[btn.dataset.key];
+                if (v) abrirModal(btn.dataset.key, v);
             });
         });
         document.querySelectorAll('.icon-btn.delete').forEach(btn => {
             btn.addEventListener('click', async () => {
-                const key = btn.dataset.key;
-                if (confirm('Eliminar esta proposta?')) {
-                    await vendasRef.child(key).remove();
-                }
+                if (confirm('Eliminar esta proposta?')) await vendasRef.child(btn.dataset.key).remove();
             });
         });
         document.querySelectorAll('.badge').forEach(select => {
             select.addEventListener('change', async function() {
-                const key = this.dataset.key;
-                const novoEstado = this.value;
-                await vendasRef.child(key).update({ estado: novoEstado });
+                await vendasRef.child(this.dataset.key).update({ estado: this.value });
             });
         });
     }
 
-    // Atualizar totais
     const valores = Object.values(vendasFiltradas);
     const pendentes = valores.filter(v => v.estado === 'Pendente');
     const vendidas = valores.filter(v => v.estado === 'Vendido');
     const recusadas = valores.filter(v => v.estado === 'Recusado');
     
-    const totalPendentes = pendentes.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const totalVendido = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const totalRecusado = recusadas.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-    const totalGeral = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0);
-
-    document.getElementById('totalPendentes').textContent = totalPendentes.toFixed(2) + ' €';
-    document.getElementById('numPendentes').textContent = pendentes.length + ' pendentes';
-    document.getElementById('totalVendido').textContent = totalVendido.toFixed(2) + ' €';
-    document.getElementById('numVendidas').textContent = vendidas.length + ' vendidas';
-    document.getElementById('totalRecusado').textContent = totalRecusado.toFixed(2) + ' €';
-    document.getElementById('numRecusadas').textContent = recusadas.length + ' recusadas';
-    document.getElementById('totalGeral').textContent = totalGeral.toFixed(2) + ' €';
-    document.getElementById('numTotal').textContent = valores.length + ' propostas';
+    document.getElementById('totalPendentes').textContent = pendentes.reduce((s, v) => s + parseFloat(v.preco || 0), 0).toFixed(2) + ' €';
+    document.getElementById('numPendentes').textContent = pendentes.length;
+    document.getElementById('totalVendido').textContent = vendidas.reduce((s, v) => s + parseFloat(v.preco || 0), 0).toFixed(2) + ' €';
+    document.getElementById('numVendidas').textContent = vendidas.length;
+    document.getElementById('totalRecusado').textContent = recusadas.reduce((s, v) => s + parseFloat(v.preco || 0), 0).toFixed(2) + ' €';
+    document.getElementById('numRecusadas').textContent = recusadas.length;
+    document.getElementById('totalGeral').textContent = valores.reduce((s, v) => s + parseFloat(v.preco || 0), 0).toFixed(2) + ' €';
+    document.getElementById('numTotal').textContent = valores.length;
 }
 
-// ---- Modal ----
+// ============ MODAL ============
 function abrirModal(key = null, venda = null) {
     editKey = key;
     document.getElementById('modalTitle').textContent = key ? 'Editar Proposta' : 'Nova Proposta';
@@ -461,70 +520,7 @@ function fecharModal() {
     editKey = null;
 }
 
-// ---- Transição para novo período ----
-async function criarNovoPeriodo() {
-    if (!confirm('🔄 Criar novo período de vendas?\n\n' +
-                 '• Os pendentes serão copiados para o novo período\n' +
-                 '• Vendidos e recusados ficam no período atual\n\n' +
-                 'Continuar?')) {
-        return;
-    }
-    
-    const novoPeriodo = obterPeriodoAtual();
-    const novoPeriodoStr = periodoToString(novoPeriodo.ano, novoPeriodo.mes);
-    
-    const snap = await periodosRef.once('value');
-    let periodos = snap.val() || [];
-    if (periodos.includes(novoPeriodoStr)) {
-        alert('Este período já existe! Selecione-o no menu.');
-        periodoSelecionado = novoPeriodoStr;
-        document.getElementById('monthSelect').value = novoPeriodoStr;
-        atualizarBadge();
-        filtrarPorPeriodo();
-        return;
-    }
-    
-    const pendentes = Object.values(vendasFiltradas).filter(v => v.estado === 'Pendente');
-    for (const v of pendentes) {
-        const novaVenda = { 
-            ...v, 
-            periodo: novoPeriodoStr, 
-            data: firebase.database.ServerValue.TIMESTAMP 
-        };
-        await vendasRef.push(novaVenda);
-    }
-    
-    periodos.push(novoPeriodoStr);
-    periodos.sort().reverse();
-    await periodosRef.set(periodos);
-    
-    const select = document.getElementById('monthSelect');
-    const opt = document.createElement('option');
-    opt.value = novoPeriodoStr;
-    opt.textContent = formatarPeriodo(novoPeriodoStr);
-    select.insertBefore(opt, select.firstChild);
-    select.value = novoPeriodoStr;
-    
-    periodoSelecionado = novoPeriodoStr;
-    atualizarBadge();
-    await carregarVendas();
-    
-    alert(`✅ Novo período criado!\n${formatarPeriodo(novoPeriodoStr)}\n${pendentes.length} pendentes copiados.`);
-}
-
-// ---- Event listeners ----
-document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
-document.getElementById('btnNewMonth').addEventListener('click', criarNovoPeriodo);
-document.getElementById('closeModal').addEventListener('click', fecharModal);
-document.getElementById('btnCancel').addEventListener('click', fecharModal);
-document.getElementById('searchInput').addEventListener('input', renderizar);
-
-document.getElementById('monthSelect').addEventListener('change', function() {
-    periodoSelecionado = this.value;
-    atualizarBadge();
-    filtrarPorPeriodo();
-});
-
+// ============ SUBMETER ============
 document.getElementById('formVenda').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
@@ -532,19 +528,33 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     const preco = document.getElementById('preco').value;
     const iban = document.getElementById('iban').value.trim();
     const observacao = document.getElementById('observacao').value.trim();
-    const dataAgendamento = document.getElementById('dataAgendamento').value;
-    const horaAgendamento = document.getElementById('horaAgendamento').value;
+    const dataAgend = document.getElementById('dataAgendamento').value;
+    const horaAgend = document.getElementById('horaAgendamento').value;
 
     if (!nome || !pacote || !preco) return alert('Preencha os campos obrigatórios.');
 
+    let linkCalendar = editKey ? vendasFiltradas[editKey]?.linkCalendar || '' : '';
+
+    // Se tem data e hora E está conectado ao Google, criar evento
+    if (dataAgend && horaAgend && googleToken) {
+        try {
+            showMessage('⏳ A criar evento no Google Calendar...', 'success');
+            linkCalendar = await criarEventoCalendar(nome, dataAgend, horaAgend, observacao);
+            if (linkCalendar) {
+                showMessage('✅ Evento criado no Google Calendar!', 'success');
+            }
+        } catch (error) {
+            showMessage('⚠️ Proposta guardada, mas evento NÃO foi criado no Calendar. Tenta agendar depois.', 'error');
+        }
+    }
+
     const dados = {
-        nome,
-        pacote,
+        nome, pacote,
         preco: parseFloat(preco).toFixed(2),
-        iban,
-        observacao,
-        dataAgendamento,
-        horaAgendamento,
+        iban, observacao,
+        dataAgendamento: dataAgend,
+        horaAgendamento: horaAgend,
+        linkCalendar: linkCalendar,
         periodo: periodoSelecionado,
         estado: editKey ? vendasFiltradas[editKey].estado : 'Pendente',
         data: firebase.database.ServerValue.TIMESTAMP
@@ -562,6 +572,55 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     }
 });
 
+// ============ TRANSIÇÃO DE PERÍODO ============
+document.getElementById('btnNewMonth').addEventListener('click', async () => {
+    if (!confirm('🔄 Criar novo período?\n\nPendentes serão copiados.\nContinuar?')) return;
+    
+    const novo = obterPeriodoAtual();
+    const novoStr = periodoToString(novo.ano, novo.mes);
+    
+    const snap = await periodosRef.once('value');
+    let periodos = snap.val() || [];
+    if (periodos.includes(novoStr)) {
+        periodoSelecionado = novoStr;
+        document.getElementById('monthSelect').value = novoStr;
+        atualizarBadge();
+        filtrarPorPeriodo();
+        return alert('Este período já existe!');
+    }
+    
+    const pendentes = Object.values(vendasFiltradas).filter(v => v.estado === 'Pendente');
+    for (const v of pendentes) {
+        await vendasRef.push({ ...v, periodo: novoStr, data: firebase.database.ServerValue.TIMESTAMP });
+    }
+    
+    periodos.push(novoStr);
+    periodos.sort().reverse();
+    await periodosRef.set(periodos);
+    
+    const select = document.getElementById('monthSelect');
+    const opt = document.createElement('option');
+    opt.value = novoStr;
+    opt.textContent = formatarPeriodo(novoStr);
+    select.insertBefore(opt, select.firstChild);
+    select.value = novoStr;
+    
+    periodoSelecionado = novoStr;
+    atualizarBadge();
+    await carregarVendas();
+    alert(`✅ Novo período criado!\n${formatarPeriodo(novoStr)}\n${pendentes.length} pendentes copiados.`);
+});
+
+// ============ EVENT LISTENERS ============
+document.getElementById('btnAdd').addEventListener('click', () => abrirModal());
+document.getElementById('closeModal').addEventListener('click', fecharModal);
+document.getElementById('btnCancel').addEventListener('click', fecharModal);
+document.getElementById('searchInput').addEventListener('input', renderizar);
+document.getElementById('monthSelect').addEventListener('change', function() {
+    periodoSelecionado = this.value;
+    atualizarBadge();
+    filtrarPorPeriodo();
+});
 window.addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalVenda')) fecharModal();
 });
